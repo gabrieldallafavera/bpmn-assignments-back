@@ -9,6 +9,7 @@ namespace Api.DtosProfiles.People
         public UserProfile()
         {
             CreateMap<User, UserDto>();
+            CreateMap<UserDto, User>();
         }
     }
 }
