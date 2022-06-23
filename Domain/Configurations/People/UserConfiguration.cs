@@ -14,13 +14,18 @@ namespace Domain.Configurations.People
                 .IsRequired();
 
             builder
+                .Property(x => x.Username)
+                .HasColumnType("varchar(100)")
+                .IsRequired();
+
+            builder
                 .Property(x => x.Email)
                 .HasColumnType("varchar(250)")
                 .IsRequired();
 
             builder
-                .Property(x => x.Password)
-                .HasColumnType("varchar(250)")
+                .Property(x => x.Role)
+                .HasColumnType("varchar(50)")
                 .IsRequired();
         }
     }
