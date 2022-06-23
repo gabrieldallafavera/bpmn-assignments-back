@@ -1,13 +1,15 @@
 ﻿namespace Api.Scopes
 {
-    internal static partial class Scope
+    public static partial class Scope
     {
-        internal static void OnScopeCreating(IServiceCollection services)
+        public static void OnScopeCreating(IServiceCollection services)
         {
             // Adicionar chamadas
-            ScopeAuth(services);
+            ScopeServices(services);
+            ScopeRepositories(services);
         }
 
-        static partial void ScopeAuth(IServiceCollection services);
+        static partial void ScopeServices(IServiceCollection services);
+        static partial void ScopeRepositories(IServiceCollection services);
     }
 }

@@ -1,11 +1,11 @@
 ﻿using Api.Database;
-using Repository.Interface;
+using Api.Repository.Interface;
 
 namespace Repository.Repository
 {
     public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class
     {
-        private readonly Context _context;
+        public readonly Context _context;
 
         public BaseRepository(Context context)
         {

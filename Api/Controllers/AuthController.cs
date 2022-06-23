@@ -13,20 +13,12 @@ namespace Api.Controllers
     [ApiExplorerSettings(GroupName = "Autenticação")]
     public class AuthController : ControllerBase
     {
-        public static User user = new User(); // Verificar para subistituir pela consulta do banco
-        private readonly IMapper _mapper;
-        
-        private readonly IPasswordHashService _passwordHashService;
-        private readonly ITokenService _tokenService;
+        private readonly IAuthService _authService;
         private readonly IClaimService _claimService;
 
-        //Converter de IUserService para services necessário para reduzir a controller
-        public AuthController(IMapper mapper, IPasswordHashService passwordHashService, ITokenService tokenService, IClaimService claimService)
+        public AuthController(IAuthService authService, IClaimService claimService)
         {
-            _mapper = mapper;
-            
-            _passwordHashService = passwordHashService;
-            _tokenService = tokenService;
+            _authService = authService;
             _claimService = claimService;
         }
 
@@ -48,19 +40,16 @@ namespace Api.Controllers
         [HttpPost("register"), Authorize(Roles = "Admin")]
         public ActionResult<UserDto> Register(UserDto userDto)
         {
-            _passwordHashService.CreatePasswordHash(userDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            try
+            {
+                return Ok(_authService.Login(userDto));
+            }
+            catch (Exception)
+            {
 
-            user = _mapper.Map<User>(userDto);
-
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-
-            // Criar método para salvar no banco
-
-            return Ok(_mapper.Map<UserDto>(user));
+                throw;
+            }
         }
-
-        //Verificar a necessidade de criar um refreshToken diretamente dentro da User
 
         /// <summary>
         /// Realiza login no sistema
@@ -71,28 +60,15 @@ namespace Api.Controllers
         [HttpPost("login")]
         public ActionResult<UserDto> Login(UserDto userDto)
         {
-            //Criar método para buscar no banco
-
-            if (!user.Username.Equals(userDto.Username) && !user.Email.Equals(userDto.Email))
+            try
             {
-                return BadRequest("Usuário não encontrado.");
+                return Ok(_authService.Login(userDto));
             }
-
-            if (!_passwordHashService.VerifyPasswordHash(userDto.Password, user.PasswordHash, user.PasswordSalt))
+            catch (Exception)
             {
-                return BadRequest("Senha errada.");
+
+                throw;
             }
-
-            userDto = _mapper.Map<UserDto>(user);
-
-            userDto.Token = _tokenService.CreateToken(user);
-            _tokenService.SetRefreshToken(out string refreshToken, out DateTime tokenCreated, out DateTime tokenExpires);
-
-            user.RefreshToken = refreshToken;
-            user.TokenCreated = tokenCreated;
-            user.TokenExpires = tokenExpires;
-
-            return Ok(userDto);
         }
 
         /// <summary>
@@ -100,30 +76,17 @@ namespace Api.Controllers
         /// </summary>
         /// <response code="200">Objeto UserDto com o novo token</response>
         [HttpPost("refresh-token")]
-        public ActionResult<UserDto> RefreshToken()
+        public ActionResult<UserDto> RefreshToken(UserDto userDto)
         {
-            var cookieRefreshToken = Request.Cookies["refreshToken"];
-
-            if (!user.RefreshToken.Equals(cookieRefreshToken))
+            try
             {
-                return Unauthorized("Renovação de token inválida.");
+                return Ok(_authService.RefreshToken(userDto));
             }
-            else if (user.TokenExpires < DateTime.Now)
+            catch (Exception)
             {
-                return Unauthorized("Token expirado.");
+
+                throw;
             }
-
-            string token = _tokenService.CreateToken(user);
-            _tokenService.SetRefreshToken(out string refreshToken, out DateTime tokenCreated, out DateTime tokenExpires);
-
-            user.RefreshToken = refreshToken;
-            user.TokenCreated = tokenCreated;
-            user.TokenExpires = tokenExpires;
-
-            UserDto userDto = _mapper.Map<UserDto>(user);
-            userDto.Token = token;
-
-            return Ok(userDto);
         }
     }
 }

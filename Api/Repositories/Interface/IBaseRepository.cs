@@ -1,4 +1,4 @@
-﻿namespace Repository.Interface
+﻿namespace Api.Repository.Interface
 {
     public interface IBaseRepository<TEntity> where TEntity : class
     {
