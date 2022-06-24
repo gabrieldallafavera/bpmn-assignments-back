@@ -1,4 +1,5 @@
 ﻿using Api.Database;
+using Api.Helpers.Pagination;
 using Api.Repository.Interface;
 
 namespace Repository.Repository
@@ -14,59 +15,53 @@ namespace Repository.Repository
 
         public async Task<TEntity?> FindByIdAsync(int id)
         {
-            try
-            {
-                return await _context.Set<TEntity>().FindAsync(id);
-            }
-            catch (Exception) { throw; }
+            return await _context.Set<TEntity>().FindAsync(id);
         }
 
         public async Task<IList<TEntity>> ListAsync()
         {
-            try
-            {
-                return await _context.Set<TEntity>().ToListAsync();
-            }
-            catch (Exception) { throw; }
+            return await _context.Set<TEntity>().ToListAsync();
         }
 
         public async Task<object> PaginateAsync(int itemsPerPage, int page)
         {
+            return PaginationBuilder<TEntity>.ToPagination(await _context.Set<TEntity>().ToListAsync(), itemsPerPage, page);
+        }
+
+        public async Task<TEntity> InsertAsync(TEntity data)
+        {
             try
             {
-                var totalitems = _context.Set<TEntity>().ToList().Count();
+                _context.Set<TEntity>().Add(data);
+                _context.SaveChanges();
 
-                var totalPages = Math.Ceiling(totalitems / (float)itemsPerPage);
-
-                var items = await _context.Set<TEntity>()
-                    .Skip((page - 1) * itemsPerPage)
-                    .Take(itemsPerPage)
-                    .ToListAsync();
-
-                return new
-                {
-                    items,
-                    currentPage = page,
-                    totalitems,
-                    totalPages
-                };
+                return data;
+            } catch (Exception e)
+            {
+                throw;
             }
-            catch (Exception) { throw; }
         }
 
-        public Task<TEntity> InsertAsync(TEntity data)
+        public async Task<TEntity> UpdateAsync(TEntity data)
         {
-            throw new NotImplementedException();
+            _context.Set<TEntity>().Update(data);
+            _context.SaveChanges();
+
+            return data;
         }
 
-        public Task<TEntity> UpdateAsync(TEntity data)
+        public async Task<bool> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
-        }
+            var entidade = await _context.Set<TEntity>().FindAsync(id);
 
-        public Task<TEntity> DeleteAsync(int id)
-        {
-            throw new NotImplementedException();
+            if (entidade == null)
+                throw new KeyNotFoundException("Objeto não encontrado.");
+
+            _context.Set<TEntity>().Remove(entidade);
+
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

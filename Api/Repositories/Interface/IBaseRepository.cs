@@ -12,6 +12,6 @@
         
         Task<TEntity> UpdateAsync(TEntity data);
         
-        Task<TEntity> DeleteAsync(int id);
+        Task<bool> DeleteAsync(int id);
     }
 }

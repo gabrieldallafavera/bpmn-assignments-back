@@ -36,23 +36,6 @@ namespace Api.Database.Configurations.People
                 .Property(x => x.Role)
                 .HasColumnType("varchar(50)")
                 .IsRequired();
-
-
-
-            builder
-                .Property(x => x.RefreshToken)
-                .HasColumnType("varchar(200)")
-                .IsRequired();
-
-            builder
-                .Property(x => x.TokenCreated)
-                .HasColumnType("datetime")
-                .IsRequired();
-
-            builder
-                .Property(x => x.TokenExpires)
-                .HasColumnType("datetime")
-                .IsRequired();
         }
     }
 }

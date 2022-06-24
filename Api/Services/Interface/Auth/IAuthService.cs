@@ -4,10 +4,10 @@ namespace Api.Services.Interface.Auth
 {
     public interface IAuthService
     {
-        Task<UserDto> Register(UserDto userDto);
+        Task<UserReadDto> Register(UserWriteDto userWriteDto);
 
-        Task<UserDto> Login(UserDto userDto);
+        Task<UserReadDto> Login(UserReadDto userReadDto);
 
-        Task<UserDto> RefreshToken(UserDto userDto);
+        Task<RefreshTokenDto> RefreshToken(RefreshTokenDto refreshTokenDto);
     }
 }

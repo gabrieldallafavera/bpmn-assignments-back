@@ -8,6 +8,7 @@ using Serilog;
 using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
 using System.Text;
+using Api.Helpers.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +87,7 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api.BpmnAssignments");
     });
 }
+//app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 

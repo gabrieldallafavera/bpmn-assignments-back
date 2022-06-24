@@ -11,97 +11,113 @@ namespace Api.Services.Services.Auth
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        private readonly IClaimService _claimService;
         private readonly ITokenService _tokenService;
         private readonly IPasswordHashService _passwordHashService;
         
         private readonly IUserRepository _userRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-        public AuthService(IMapper mapper, IHttpContextAccessor httpContextAccessor, IClaimService claimService, ITokenService tokenService, IPasswordHashService passwordHashService, IUserRepository userRepository)
+        public AuthService(IMapper mapper, IHttpContextAccessor httpContextAccessor, ITokenService tokenService, IPasswordHashService passwordHashService, IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository)
         {
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
 
-            _claimService = claimService;
             _tokenService = tokenService;
             _passwordHashService = passwordHashService;
             
             _userRepository = userRepository;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
-        public async Task<UserDto> Register(UserDto userDto)
+        public async Task<UserReadDto> Register(UserWriteDto userWriteDto)
         {
-            _passwordHashService.CreatePasswordHash(userDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            _passwordHashService.CreatePasswordHash(userWriteDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-            User user = _mapper.Map<User>(userDto);
+            User user = _mapper.Map<User>(userWriteDto);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
             user = await _userRepository.InsertAsync(user);
 
-            return _mapper.Map<UserDto>(user);
+            return _mapper.Map<UserReadDto>(user);
         }
 
-        public async Task<UserDto> Login(UserDto userDto)
+        public async Task<UserReadDto> Login(UserReadDto userReadDto)
         {
-            //Criar método para buscar no banco
-            User? user = await _userRepository.Find(userDto.Username, userDto.Email);
+            User? user = await _userRepository.Find(userReadDto.Username, userReadDto.Email);
 
             if (user == null)
             {
-                return BadRequest("Usuário não encontrado.");
+                throw new BadHttpRequestException("Usuário não encontrado.");
             }
-            else if (!_passwordHashService.VerifyPasswordHash(userDto.Password, user.PasswordHash, user.PasswordSalt))
+            else if (!_passwordHashService.VerifyPasswordHash(userReadDto.Password, user.PasswordHash, user.PasswordSalt))
             {
-                return BadRequest("Senha errada.");
+                throw new BadHttpRequestException("Senha errada.");
             }
 
-            userDto = _mapper.Map<UserDto>(user);
+            userReadDto = _mapper.Map<UserReadDto>(user);
 
-            userDto.Token = _tokenService.CreateToken(user);
-            _tokenService.SetRefreshToken(out string refreshToken, out DateTime tokenCreated, out DateTime tokenExpires);
+            userReadDto.Token = _tokenService.CreateToken(user);
+            _tokenService.SetRefreshToken(out string newRefreshToken, out DateTime tokenCreated, out DateTime tokenExpires);
 
-            //Separa da tabela User e salvar 
-            user.RefreshToken = refreshToken;
-            user.TokenCreated = tokenCreated;
-            user.TokenExpires = tokenExpires;
+            RefreshToken refreshToken = new RefreshToken();
+            if (user.RefreshToken != null)
+            {
+                refreshToken = user.RefreshToken;
+            }
+            refreshToken.Token = newRefreshToken;
+            refreshToken.Expires = tokenExpires;
+            refreshToken.Created = tokenCreated;
 
-            return userDto;
+            if (user.RefreshToken != null)
+            {
+                refreshToken = await _refreshTokenRepository.UpdateAsync(refreshToken);
+            }
+            else
+            {
+                refreshToken.UserId = user.Id;
+                refreshToken = await _refreshTokenRepository.InsertAsync(refreshToken);
+            }
+
+            userReadDto.RefreshToken = refreshToken.Token;
+            userReadDto.RefreshTokenExpires = refreshToken.Expires;
+
+            return userReadDto;
         }
 
-        // Receber o Objeto refreshTokenDto ao invés do userDto
-        public async Task<UserDto> RefreshToken(UserDto userDto)
+        public async Task<RefreshTokenDto> RefreshToken(RefreshTokenDto refreshTokenDto)
         {
             var cookieRefreshToken = _httpContextAccessor?.HttpContext?.Request.Cookies["refreshToken"];
 
-            User? user = await _userRepository.FindByIdAsync(userDto.Id);
+            RefreshToken? refreshToken = await _refreshTokenRepository.Find(refreshTokenDto.Token);
 
-            if (user == null)
+            if (refreshToken == null || refreshToken.User == null)
             {
-                return BadRequest("RefreshToken não encontrado");
+                throw new BadHttpRequestException("RefreshToken não encontrado");
             }
-            else if (!user.RefreshToken.Equals(cookieRefreshToken))
+            else if (!refreshToken.Token.Equals(cookieRefreshToken))
             {
-                return Unauthorized("Renovação de token inválida.");
+                throw new UnauthorizedAccessException("Renovação de token inválida.");
             }
-            else if (user.TokenExpires < DateTime.Now)
+            else if (refreshToken.Expires < DateTime.Now)
             {
-                return Unauthorized("Token expirado.");
+                throw new UnauthorizedAccessException("Token expirado.");
             }
 
-            string token = _tokenService.CreateToken(user);
-            _tokenService.SetRefreshToken(out string refreshToken, out DateTime tokenCreated, out DateTime tokenExpires);
+            string token = _tokenService.CreateToken(refreshToken.User);
+            _tokenService.SetRefreshToken(out string newRefreshToken, out DateTime tokenCreated, out DateTime tokenExpires);
 
-            //Separa da tabela User e salvar 
-            user.RefreshToken = refreshToken;
-            user.TokenCreated = tokenCreated;
-            user.TokenExpires = tokenExpires;
+            refreshToken.Token = newRefreshToken;
+            refreshToken.Expires = tokenExpires;
+            refreshToken.Created = tokenCreated;
 
-            userDto = _mapper.Map<UserDto>(user);
-            userDto.Token = token;
+            refreshToken = await _refreshTokenRepository.UpdateAsync(refreshToken);
 
-            return userDto;
+            refreshTokenDto = _mapper.Map<RefreshTokenDto>(refreshToken);
+            refreshTokenDto.NewToken = token;
+
+            return refreshTokenDto;
         }
     }
 }

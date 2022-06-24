@@ -11,10 +11,7 @@ namespace Api.Database.Entities.People
         public byte[] PasswordHash { get; set; } = new byte[32];
         public byte[] PasswordSalt { get; set; } = new byte[32];
         public string Role { get; set; } = string.Empty;
-
-        // Verificar para passar para uma tabela exclusiva, por fica mudando muito seguido
-        public string RefreshToken { get; set; } = string.Empty;
-        public DateTime TokenCreated { get; set; }
-        public DateTime TokenExpires { get; set; }
+        
+        public RefreshToken? RefreshToken { get; set; }
     }
 }

@@ -13,12 +13,20 @@ namespace Api.Repositories.Repositories.People
         {
             try
             {
-                return  await (from U in _context.User
+                var item = (from U in _context.User
                               where U.Username == username || U.Email == email
                               select U)
-                              .FirstOrDefaultAsync();
+                          .Include(x => x.RefreshToken)
+                          .FirstOrDefault();
+
+                return item;
             }
-            catch (Exception) { throw; }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+            
         }
     }
 }

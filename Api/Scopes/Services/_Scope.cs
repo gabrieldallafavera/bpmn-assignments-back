@@ -10,6 +10,7 @@ namespace Api.Scopes
             services.AddScoped<IPasswordHashService, PasswordHashService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IClaimService, ClaimService>();
+            services.AddTransient<IAuthService, AuthService>();
         }
     }
 }

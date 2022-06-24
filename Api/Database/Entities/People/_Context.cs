@@ -8,7 +8,8 @@ namespace Api.Database
     {
         partial void PeopleConfiguration(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration<User>(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
 
             _passwordHashService.CreatePasswordHash("My@Admin@Password", out byte[] passwordHash, out byte[] passwordSalt);
 
@@ -18,5 +19,6 @@ namespace Api.Database
         }
 
         public DbSet<User> User => Set<User>();
+        public DbSet<RefreshToken> RefreshToken => Set<RefreshToken>();
     }
 }

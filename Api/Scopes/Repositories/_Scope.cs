@@ -8,6 +8,7 @@ namespace Api.Scopes
         static partial void ScopeRepositories(IServiceCollection services)
         {
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         }
     }
 }
