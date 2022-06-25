@@ -1,5 +1,7 @@
 ﻿using Api.Services.Interface.Auth;
+using Api.Services.Interface.Email;
 using Api.Services.Services.Auth;
+using Api.Services.Services.Email;
 
 namespace Api.Scopes
 {
@@ -7,10 +9,11 @@ namespace Api.Scopes
     {
         static partial void ScopeServices(IServiceCollection services)
         {
-            services.AddScoped<IPasswordHashService, PasswordHashService>();
-            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IClaimService, ClaimService>();
-            services.AddTransient<IAuthService, AuthService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IPasswordHashService, PasswordHashService>();
         }
     }
 }
