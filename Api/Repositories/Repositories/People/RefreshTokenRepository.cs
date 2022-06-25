@@ -9,13 +9,13 @@ namespace Api.Repositories.Repositories.People
     {
         public RefreshTokenRepository(Context context) : base(context) { }
 
-        public async Task<RefreshToken?> Find(string token)
+        public RefreshToken? Find(string token)
         {
-            return await (from RT in _context.RefreshToken
-                         where RT.Token == token
-                         select RT)
-                         .Include(x => x.User)
-                         .FirstOrDefaultAsync();
+            return (from RT in _context.RefreshToken
+                    where RT.Token == token
+                    select RT)
+                    .Include(x => x.User)
+                    .FirstOrDefault();
         }
     }
 }

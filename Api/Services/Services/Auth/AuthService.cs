@@ -29,7 +29,7 @@ namespace Api.Services.Services.Auth
             _refreshTokenRepository = refreshTokenRepository;
         }
 
-        public async Task<UserReadDto> Register(UserWriteDto userWriteDto)
+        public UserReadDto Register(UserWriteDto userWriteDto)
         {
             _passwordHashService.CreatePasswordHash(userWriteDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
@@ -38,14 +38,14 @@ namespace Api.Services.Services.Auth
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-            user = await _userRepository.InsertAsync(user);
+            user = _userRepository.Insert(user);
 
             return _mapper.Map<UserReadDto>(user);
         }
 
-        public async Task<UserReadDto> Login(UserReadDto userReadDto)
+        public UserReadDto Login(UserReadDto userReadDto)
         {
-            User? user = await _userRepository.Find(userReadDto.Username, userReadDto.Email);
+            User? user = _userRepository.Find(userReadDto.Username, userReadDto.Email);
 
             if (user == null)
             {
@@ -72,12 +72,12 @@ namespace Api.Services.Services.Auth
 
             if (user.RefreshToken != null)
             {
-                refreshToken = await _refreshTokenRepository.UpdateAsync(refreshToken);
+                refreshToken = _refreshTokenRepository.Update(refreshToken);
             }
             else
             {
                 refreshToken.UserId = user.Id;
-                refreshToken = await _refreshTokenRepository.InsertAsync(refreshToken);
+                refreshToken = _refreshTokenRepository.Insert(refreshToken);
             }
 
             userReadDto.RefreshToken = refreshToken.Token;
@@ -86,11 +86,11 @@ namespace Api.Services.Services.Auth
             return userReadDto;
         }
 
-        public async Task<RefreshTokenDto> RefreshToken(RefreshTokenDto refreshTokenDto)
+        public RefreshTokenDto RefreshToken(RefreshTokenDto refreshTokenDto)
         {
             var cookieRefreshToken = _httpContextAccessor?.HttpContext?.Request.Cookies["refreshToken"];
 
-            RefreshToken? refreshToken = await _refreshTokenRepository.Find(refreshTokenDto.Token);
+            RefreshToken? refreshToken = _refreshTokenRepository.Find(refreshTokenDto.Token);
 
             if (refreshToken == null || refreshToken.User == null)
             {
@@ -112,7 +112,7 @@ namespace Api.Services.Services.Auth
             refreshToken.Expires = tokenExpires;
             refreshToken.Created = tokenCreated;
 
-            refreshToken = await _refreshTokenRepository.UpdateAsync(refreshToken);
+            refreshToken = _refreshTokenRepository.Update(refreshToken);
 
             refreshTokenDto = _mapper.Map<RefreshTokenDto>(refreshToken);
             refreshTokenDto.NewToken = token;

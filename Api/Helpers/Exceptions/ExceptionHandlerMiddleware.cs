@@ -1,4 +1,5 @@
 ﻿using Api.Helpers.Exceptions.CustomExceptions;
+using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Text.Json;
 
@@ -24,38 +25,70 @@ namespace Api.Helpers.Exceptions
                 var response = httpContext.Response;
                 response.ContentType = "application/json";
 
-                switch (exception)
+                string result = string.Empty;
+
+                if (exception.InnerException?.InnerException is SqlException sqlException)
                 {
-                    case NoContentException:
-                        response.StatusCode = (int)HttpStatusCode.NoContent;
-                        break;
+                    switch(sqlException.Number){
+                        //case 2627:  // Unique constraint error
+                        //    break;
+                        //case 547:   // Constraint check violation
+                        //    break;
+                        case 2601:  // Erro dado duplicado
+                            response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            string duplicado = sqlException.Message.Split("(")[1].Split(")")[0];
+                            result = $"O valor {duplicado} já existe.";
+                            break;
+                        default:
+                            response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                            result = sqlException.Message;
+                            break;
+                    }
 
-                    case BadHttpRequestException:
-                        response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        break;
-
-                    case UnauthorizedAccessException:
-                        response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                        break;
-
-                    case ForbiddenException:
-                        response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        break;
-
-                    case KeyNotFoundException:
-                        response.StatusCode = (int)HttpStatusCode.NotFound;
-                        break;
-
-                    default:
-                        response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        break;
+                    result = JsonSerializer.Serialize(new
+                    {
+                        message = result
+                    });
                 }
+                else
+                {
+                    switch (exception)
+                    {
+                        case SqlException:
 
-                var result = JsonSerializer.Serialize(new {
-                    //message = response.StatusCode != (int)HttpStatusCode.InternalServerError ? exception?.Message : "Erro interno."
-                    message = exception?.Message
-                });
 
+                        case NoContentException:
+                            response.StatusCode = (int)HttpStatusCode.NoContent;
+                            break;
+
+                        case BadHttpRequestException:
+                            response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            break;
+
+                        case UnauthorizedAccessException:
+                            response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                            break;
+
+                        case ForbiddenException:
+                            response.StatusCode = (int)HttpStatusCode.Forbidden;
+                            break;
+
+                        case KeyNotFoundException:
+                            response.StatusCode = (int)HttpStatusCode.NotFound;
+                            break;
+
+                        default:
+                            response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                            break;
+                    }
+
+                    result = JsonSerializer.Serialize(new
+                    {
+                        //message = response.StatusCode != (int)HttpStatusCode.InternalServerError ? exception?.Message : "Erro interno."
+                        message = exception?.Message
+                    });
+                }
+                
                 if (!response.StatusCode.Equals((int)HttpStatusCode.NoContent))
                 {
                     await response.WriteAsync(result);

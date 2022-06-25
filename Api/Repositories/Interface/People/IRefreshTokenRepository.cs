@@ -5,6 +5,6 @@ namespace Api.Repositories.Interface.People
 {
     public interface IRefreshTokenRepository : IBaseRepository<RefreshToken>
     {
-        Task<RefreshToken?> Find(string token);
+        RefreshToken? Find(string token);
     }
 }

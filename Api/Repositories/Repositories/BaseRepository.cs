@@ -13,36 +13,30 @@ namespace Repository.Repository
             _context = context;
         }
 
-        public async Task<TEntity?> FindByIdAsync(int id)
+        public TEntity? FindById(int id)
         {
-            return await _context.Set<TEntity>().FindAsync(id);
+            return _context.Set<TEntity>().Find(id);
         }
 
-        public async Task<IList<TEntity>> ListAsync()
+        public IList<TEntity> List()
         {
-            return await _context.Set<TEntity>().ToListAsync();
+            return _context.Set<TEntity>().ToList();
         }
 
-        public async Task<object> PaginateAsync(int itemsPerPage, int page)
+        public object Paginate(int itemsPerPage, int page)
         {
-            return PaginationBuilder<TEntity>.ToPagination(await _context.Set<TEntity>().ToListAsync(), itemsPerPage, page);
+            return PaginationBuilder<TEntity>.ToPagination(_context.Set<TEntity>().ToList(), itemsPerPage, page);
         }
 
-        public async Task<TEntity> InsertAsync(TEntity data)
+        public TEntity Insert(TEntity data)
         {
-            try
-            {
-                _context.Set<TEntity>().Add(data);
-                _context.SaveChanges();
+            _context.Set<TEntity>().Add(data);
+            _context.SaveChanges();
 
-                return data;
-            } catch (Exception e)
-            {
-                throw;
-            }
+            return data;
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity data)
+        public TEntity Update(TEntity data)
         {
             _context.Set<TEntity>().Update(data);
             _context.SaveChanges();
@@ -50,16 +44,16 @@ namespace Repository.Repository
             return data;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public bool Delete(int id)
         {
-            var entidade = await _context.Set<TEntity>().FindAsync(id);
+            var entidade = _context.Set<TEntity>().Find(id);
 
             if (entidade == null)
                 throw new KeyNotFoundException("Objeto não encontrado.");
 
             _context.Set<TEntity>().Remove(entidade);
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return true;
         }

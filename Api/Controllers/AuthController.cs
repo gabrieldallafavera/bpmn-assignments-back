@@ -36,11 +36,11 @@ namespace Api.Controllers
         /// <remarks>
         /// Padrão das senhas:
         /// 
-        /// Ter tamanho mínimo 8 caracteres.
-        /// Deve ter somente letras e numero e caractere especial.
-        /// Deve ter no mínimo uma letra maiúscula e minúscula.
-        /// Deve ter no mínimo um numero.
-        /// Deve ter no mínimo caractere especial.
+        ///     Ter tamanho mínimo 8 caracteres.
+        ///     Deve ter somente letras e numero e caractere especial.
+        ///     Deve ter no mínimo uma letra maiúscula e minúscula.
+        ///     Deve ter no mínimo um numero.
+        ///     Deve ter no mínimo caractere especial.
         /// 
         /// Exemplo de request:
         /// 
@@ -56,7 +56,7 @@ namespace Api.Controllers
         /// </remarks>
         /// <param name="userWriteDto">Objeto UserWriteDto</param>
         /// <response code="200">Retorno o objeto UserReadDto criado</response>
-        [HttpPost("register")/*, Authorize(Roles = "Admin")*/]
+        [HttpPost("register"), Authorize(Roles = "Admin")]
         public ActionResult<UserReadDto> Register(UserWriteDto userWriteDto)
         {
             return Ok(_authService.Register(userWriteDto));

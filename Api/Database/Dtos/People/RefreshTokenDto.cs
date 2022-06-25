@@ -9,6 +9,6 @@ namespace Api.Database.Dtos.People
         public string Token { get; set; } = string.Empty;
         public DateTime Expires { get; set; }
 
-        public string NewToken = string.Empty;
+        public string NewToken { get; set; } = string.Empty;
     }
 }
