@@ -10,15 +10,19 @@ namespace Api.Database
         {
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
+            modelBuilder.ApplyConfiguration(new ResetPasswordConfiguration());
+            modelBuilder.ApplyConfiguration(new VerifyEmailConfiguration());
 
             _passwordHashService.CreatePasswordHash("My@Admin@Password", out byte[] passwordHash, out byte[] passwordSalt);
 
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "My Admin User", Username = "MyAdminUser", Email = "myadminuser@email.com", PasswordHash = passwordHash, PasswordSalt = passwordSalt, Role = "Admin" } // Adicionar Refresh token
+                new User { Id = 1, Name = "My Admin User", Username = "MyAdminUser", Email = "myadminuser@email.com", PasswordHash = passwordHash, PasswordSalt = passwordSalt, Role = "Admin" }
             );
         }
 
         public DbSet<User> User => Set<User>();
         public DbSet<RefreshToken> RefreshToken => Set<RefreshToken>();
+        public DbSet<ResetPassword> ResetPassword => Set<ResetPassword>();
+        public DbSet<VerifyEmail> VerifyEmail => Set<VerifyEmail>();
     }
 }

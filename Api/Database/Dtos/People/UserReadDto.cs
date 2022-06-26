@@ -11,5 +11,9 @@ namespace Api.Database.Dtos.People
         public string? Token { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpires { get; set; }
+        public string? ResetPasswordToken { get; set; }
+        public DateTime? ResetPasswordExpires { get; set; }
+        public string? VerifyEmailToken { get; set; }
+        public DateTime? VerifyEmailExpires { get; set; }
     }
 }

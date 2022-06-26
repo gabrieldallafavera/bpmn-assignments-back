@@ -9,5 +9,13 @@ namespace Api.Services.Interface.Auth
         UserReadDto Login(UserReadDto userReadDto);
 
         RefreshTokenDto RefreshToken(RefreshTokenDto refreshTokenDto);
+
+        void ResendVerifyEmail(UserReadDto userReadDto);
+
+        void VerifyEmail(string token);
+
+        void ForgotPassword(UserReadDto userReadDto);
+
+        void ResetPassword(string token, ResetPasswordDto resetPasswordDto);
     }
 }

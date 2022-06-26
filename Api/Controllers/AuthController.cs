@@ -77,7 +77,6 @@ namespace Api.Controllers
         /// </remarks>
         /// <param name="userReadDto">Objeto UserReadDto com usuário ou email e senha</param>
         /// <response code="200">Retorna o objeto UserReadDto com o token</response>
-        /// <response code="400">Usuário ou senha errado.</response>
         [HttpPost("login")]
         public ActionResult<UserReadDto> Login(UserReadDto userReadDto)
         {
@@ -92,7 +91,7 @@ namespace Api.Controllers
         /// 
         ///     Post /RefreshTokenDto
         ///     {
-        ///         "token": "nreinioio289rcn932b84cm483u09hy839x2h8"
+        ///         "Token": "nreinioio289rcn932b84cm483u09hy839x2h8"
         ///     }
         /// </remarks>
         /// <param name="refreshTokenDto">Objeto RefreshTokenDto com o Token</param>
@@ -101,6 +100,85 @@ namespace Api.Controllers
         public ActionResult<RefreshTokenDto> RefreshToken(RefreshTokenDto refreshTokenDto)
         {
             return Ok(_authService.RefreshToken(refreshTokenDto));
+        }
+
+        /// <summary>
+        /// Reenviar verificação de email
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de request:
+        /// 
+        ///     Post /UserReadDto
+        ///     {
+        ///         "Id": 2
+        ///     }
+        /// </remarks>
+        /// <param name="userReadDto">Objeto UserReadDto com o Id</param>
+        /// <response code="204">Email de confirmação enviado</response>
+        [HttpPost("resend-verify-email")]
+        public IActionResult ResendVerifyEmail(UserReadDto userReadDto)
+        {
+            _authService.ResendVerifyEmail(userReadDto);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Verifica o email
+        /// </summary>
+        /// <param name="token">Token enviado por param</param>
+        /// <response code="204">Email verificado</response>
+        [HttpPost("verify-email/{token}")]
+        public IActionResult VerifyEmail(string token)
+        {
+            _authService.VerifyEmail(token);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Solicitar recuperação de senha
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de request:
+        /// 
+        ///     Post /UserReadDto
+        ///     {
+        ///         "Username": "ExemploUserName", /* Remover se tiver email */
+        ///         "Email": "exemplo@email.com" /* Remover se tiver username */
+        ///     }
+        /// </remarks>
+        /// <param name="userReadDto">Objeto UserReadDto com nome do usuário ou senha</param>
+        /// <response code="204">Email enviado</response>
+        [HttpPost("forgot-password")]
+        public IActionResult ForgotPassword(UserReadDto userReadDto)
+        {
+            _authService.ForgotPassword(userReadDto);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de request:
+        /// 
+        ///     Post /ResetPasswordDto
+        ///     {
+        ///         "Password": "ExemploDeSenha",
+        ///         "ConfirmPassword": "ExemploDeSenha"
+        ///     }
+        /// </remarks>
+        /// <param name="token">Token enviado por param</param>
+        /// <param name="resetPasswordDto">Objeto ResetPasswordDto com senha e confirmação</param>
+        /// <response code="204">Senha redefinida</response>
+        [HttpPost("reset-password/{token}")]
+        public IActionResult ResetPassword(string token, ResetPasswordDto resetPasswordDto)
+        {
+            _authService.ResetPassword(token, resetPasswordDto);
+
+            return NoContent();
         }
     }
 }

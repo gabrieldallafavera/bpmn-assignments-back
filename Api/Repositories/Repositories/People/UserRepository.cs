@@ -15,6 +15,8 @@ namespace Api.Repositories.Repositories.People
                     where U.Username == username || U.Email == email
                     select U)
                     .Include(x => x.RefreshToken)
+                    .Include(x => x.ResetPassword)
+                    .Include(x => x.VerifyEmail)
                     .FirstOrDefault();
 
         }

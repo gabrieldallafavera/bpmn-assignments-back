@@ -3,16 +3,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Api.Database.Configurations.People
 {
-    public class RefreshTokenConfiguration : BaseEntityConfiguration<RefreshToken>
+    public class ResetPasswordConfiguration : BaseEntityConfiguration<ResetPassword>
     {
-        public override void Configure(EntityTypeBuilder<RefreshToken> builder)
+        public override void Configure(EntityTypeBuilder<ResetPassword> builder)
         {
             base.Configure(builder);
 
             builder
                 .HasOne(l => l.User)
-                .WithOne(c => c.RefreshToken)
-                .HasForeignKey<RefreshToken>(l => l.UserId)
+                .WithOne(c => c.ResetPassword)
+                .HasForeignKey<ResetPassword>(l => l.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder

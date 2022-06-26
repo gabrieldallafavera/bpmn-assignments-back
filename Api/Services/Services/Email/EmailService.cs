@@ -20,7 +20,7 @@ namespace Api.Services.Services.Email
             //https://ethereal.email Usado para criar falsos smtp
             var email = new MimeMessage();
             
-            email.From.Add(MailboxAddress.Parse(emailDto.From));
+            email.From.Add(MailboxAddress.Parse(_configuration.GetSection("Email:From").Value));
             email.To.Add(MailboxAddress.Parse(emailDto.To));
             if (!string.IsNullOrEmpty(emailDto.Cc))
             {

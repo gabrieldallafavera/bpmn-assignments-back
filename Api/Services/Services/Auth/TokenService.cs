@@ -43,10 +43,32 @@ namespace Api.Services.Services.Auth
             return jwt;
         }
 
-        public void SetRefreshToken(out string refreshToken, out DateTime tokenCreated, out DateTime tokenExpires)
+        public void SetRefreshToken(out string token, out DateTime created, out DateTime expires)
         {
-            string token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-            DateTime expires = DateTime.Now.AddDays(7);
+            CookieOptions cookieOptions = SetToken(out token, out created, out expires);
+            
+            _httpContextAccessor?.HttpContext?.Response.Cookies.Append("refreshToken", token, cookieOptions);
+        }
+
+        public void SetResetPassword(out string token, out DateTime created, out DateTime expires)
+        {
+            CookieOptions cookieOptions = SetToken(out token, out created, out expires);
+
+            _httpContextAccessor?.HttpContext?.Response.Cookies.Append("resetPassword", token, cookieOptions);
+        }
+
+        public void SetVerifyEmail(out string token, out DateTime created, out DateTime expires)
+        {
+            CookieOptions cookieOptions = SetToken(out token, out created, out expires);
+
+            _httpContextAccessor?.HttpContext?.Response.Cookies.Append("verifyEmail", token, cookieOptions);
+        }
+
+        private CookieOptions SetToken(out string token, out DateTime created, out DateTime expires)
+        {
+            token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            created = DateTime.Now;
+            expires = DateTime.Now.AddDays(7);
 
             var cookieOptions = new CookieOptions
             {
@@ -54,11 +76,7 @@ namespace Api.Services.Services.Auth
                 Expires = expires
             };
 
-            _httpContextAccessor?.HttpContext?.Response.Cookies.Append("refreshToken", token, cookieOptions);
-
-            refreshToken = token;
-            tokenCreated = DateTime.Now;
-            tokenExpires = expires;
+            return cookieOptions;
         }
     }
 }
