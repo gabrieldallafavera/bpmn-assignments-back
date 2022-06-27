@@ -1,6 +1,6 @@
 global using Microsoft.EntityFrameworkCore;
+global using Api.Database;
 using Api.Scopes;
-using Api.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;

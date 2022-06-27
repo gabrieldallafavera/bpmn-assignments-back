@@ -1,5 +1,4 @@
-﻿using Api.Database;
-using Api.Helpers.Pagination;
+﻿using Api.Helpers.Pagination;
 using Api.Repository.Interface;
 
 namespace Repository.Repository

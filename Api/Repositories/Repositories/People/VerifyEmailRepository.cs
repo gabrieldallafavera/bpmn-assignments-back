@@ -1,5 +1,4 @@
-﻿using Api.Database;
-using Api.Database.Entities.People;
+﻿using Api.Database.Entities.People;
 using Api.Repositories.Interface.People;
 using Repository.Repository;
 
