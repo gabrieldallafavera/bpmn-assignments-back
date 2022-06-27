@@ -16,7 +16,7 @@ namespace Api.Database
             _passwordHashService.CreatePasswordHash("My@Admin@Password", out byte[] passwordHash, out byte[] passwordSalt);
 
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "My Admin User", Username = "MyAdminUser", Email = "myadminuser@email.com", PasswordHash = passwordHash, PasswordSalt = passwordSalt, Role = "Admin" }
+                new User { Id = 1, Name = "My Admin User", Username = "MyAdminUser", Email = "myadminuser@email.com", PasswordHash = passwordHash, PasswordSalt = passwordSalt, Role = "Admin", VerifiedAt = DateTime.Now }
             );
         }
 

@@ -159,7 +159,7 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Redefine a senha
         /// </summary>
         /// <remarks>
         /// Exemplo de request:
