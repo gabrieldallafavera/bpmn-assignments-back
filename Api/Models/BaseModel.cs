@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Api.Database.Dtos
+namespace Api.Models
 {
-    public class BaseDto
+    public class BaseModel
     {
         public int? Id { get; set; }
         public DateTime? Created { get; set; }

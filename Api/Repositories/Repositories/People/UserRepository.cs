@@ -8,15 +8,16 @@ namespace Api.Repositories.Repositories.People
     {
         public UserRepository(Context context) : base(context) { }
 
-        public User? Find(string? username, string? email)
+        public async Task<User?> Find(string? username, string? email)
         {
-            return (from U in _context.User
-                    where U.Username == username || U.Email == email
-                    select U)
-                    .Include(x => x.RefreshToken)
-                    .Include(x => x.ResetPassword)
-                    .Include(x => x.VerifyEmail)
-                    .FirstOrDefault();
+            return await (from U in _context.User
+                          where U.Username == username || U.Email == email
+                          select U)
+                          .Include(x => x.UserRoles)
+                          .Include(x => x.RefreshToken)
+                          .Include(x => x.ResetPassword)
+                          .Include(x => x.VerifyEmail)
+                          .FirstOrDefaultAsync();
 
         }
     }

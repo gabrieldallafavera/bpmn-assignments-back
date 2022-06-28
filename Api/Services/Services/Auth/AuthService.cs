@@ -1,6 +1,6 @@
-﻿using Api.Database.Dtos.People;
-using Api.Database.Entities.People;
+﻿using Api.Database.Entities.People;
 using Api.Models.Email;
+using Api.Models.People;
 using Api.Repositories.Interface.People;
 using Api.Services.Interface.Auth;
 using Api.Services.Interface.Email;
@@ -37,11 +37,11 @@ namespace Api.Services.Services.Auth
             _resetPasswordRepository = resetPasswordRepository;
         }
 
-        public UserReadDto Register(UserWriteDto userWriteDto)
+        public UserResponse Register(UserRequest userRequest)
         {
-            _passwordHashService.CreatePasswordHash(userWriteDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            _passwordHashService.CreatePasswordHash(userRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-            User user = _mapper.Map<User>(userWriteDto);
+            User user = _mapper.Map<User>(userRequest);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
@@ -57,7 +57,7 @@ namespace Api.Services.Services.Auth
             verifyEmail.Created = created;
             verifyEmail.UserId = user.Id;
 
-            EmailDto emailDto = new EmailDto
+            EmailRequest emailDto = new EmailRequest
             {
                 To = user.Email,
                 Subject = "Confirmação de email.",
@@ -68,18 +68,18 @@ namespace Api.Services.Services.Auth
 
             _verifyEmailRepository.Insert(verifyEmail);
 
-            return _mapper.Map<UserReadDto>(user);
+            return _mapper.Map<UserResponse>(user);
         }
 
-        public UserReadDto Login(UserReadDto userReadDto)
+        public async Task<UserResponse> Login(UserResponse userResponse)
         {
-            User? user = _userRepository.Find(userReadDto.Username, userReadDto.Email);
+            User? user = await _userRepository.Find(userResponse.Username, userResponse.Email);
 
             if (user == null)
             {
                 throw new BadHttpRequestException("Usuário não encontrado.");
             }
-            else if (!_passwordHashService.VerifyPasswordHash(userReadDto.Password, user.PasswordHash, user.PasswordSalt))
+            else if (!_passwordHashService.VerifyPasswordHash(userResponse.Password, user.PasswordHash, user.PasswordSalt))
             {
                 throw new BadHttpRequestException("Senha errada.");
             }
@@ -88,9 +88,9 @@ namespace Api.Services.Services.Auth
                 throw new BadHttpRequestException("Email não verificado.");
             }
 
-            userReadDto = _mapper.Map<UserReadDto>(user);
+            userResponse = _mapper.Map<UserResponse>(user);
 
-            userReadDto.Token = _tokenService.CreateToken(user);
+            userResponse.Token = _tokenService.CreateToken(user);
 
             _tokenService.SetRefreshToken(out string newRefreshToken, out DateTime refreshTokenCreated, out DateTime refreshTokenExpires);
             
@@ -113,17 +113,17 @@ namespace Api.Services.Services.Auth
                 refreshToken = _refreshTokenRepository.Insert(refreshToken);
             }
 
-            userReadDto.RefreshToken = refreshToken.Token;
-            userReadDto.RefreshTokenExpires = refreshToken.Expires;
+            userResponse.RefreshToken = refreshToken.Token;
+            userResponse.RefreshTokenExpires = refreshToken.Expires;
 
-            return userReadDto;
+            return userResponse;
         }
 
-        public RefreshTokenDto RefreshToken(RefreshTokenDto refreshTokenDto)
+        public RefreshTokenResponse RefreshToken(RefreshTokenResponse refreshTokenResponse)
         {
             var cookieToken = _httpContextAccessor?.HttpContext?.Request.Cookies["refreshToken"];
 
-            RefreshToken? refreshToken = _refreshTokenRepository.Find(refreshTokenDto.Token);
+            RefreshToken? refreshToken = _refreshTokenRepository.Find(refreshTokenResponse.Token);
 
             if (refreshToken == null || refreshToken.User == null)
             {
@@ -147,15 +147,15 @@ namespace Api.Services.Services.Auth
 
             refreshToken = _refreshTokenRepository.Update(refreshToken);
 
-            refreshTokenDto = _mapper.Map<RefreshTokenDto>(refreshToken);
-            refreshTokenDto.NewToken = token;
+            refreshTokenResponse = _mapper.Map<RefreshTokenResponse>(refreshToken);
+            refreshTokenResponse.NewToken = token;
 
-            return refreshTokenDto;
+            return refreshTokenResponse;
         }
 
-        public void ResendVerifyEmail(UserReadDto userReadDto)
+        public async void ResendVerifyEmail(UserResponse userResponse)
         {
-            User? user = _userRepository.Find(userReadDto.Username, userReadDto.Email);
+            User? user = await _userRepository.Find(userResponse.Username, userResponse.Email);
 
             if (user == null)
             {
@@ -177,7 +177,7 @@ namespace Api.Services.Services.Auth
             verifyEmail.Expires = expires;
             verifyEmail.Created = created;
 
-            EmailDto emailDto = new EmailDto
+            EmailRequest emailDto = new EmailRequest
             {
                 To = user.Email,
                 Subject = "Confirmação de email.",
@@ -222,9 +222,9 @@ namespace Api.Services.Services.Auth
             _userRepository.Update(user);
         }
 
-        public void ForgotPassword(UserReadDto userReadDto)
+        public async void ForgotPassword(UserResponse userResponse)
         {
-            User? user = _userRepository.Find(userReadDto.Username, userReadDto.Email);
+            User? user = await _userRepository.Find(userResponse.Username, userResponse.Email);
 
             if (user == null)
             {
@@ -242,7 +242,7 @@ namespace Api.Services.Services.Auth
             resetPassword.Expires = expires;
             resetPassword.Created = created;
 
-            EmailDto emailDto = new EmailDto
+            EmailRequest emailDto = new EmailRequest
             {
                 To = user.Email,
                 Subject = "Redefinir senha.",
@@ -262,7 +262,7 @@ namespace Api.Services.Services.Auth
             }
         }
 
-        public void ResetPassword(string token, ResetPasswordDto resetPasswordDto)
+        public void ResetPassword(string token, ResetPasswordRequest resetPasswordRequest)
         {
             var cookieToken = _httpContextAccessor?.HttpContext?.Request.Cookies["resetPassword"];
 
@@ -283,7 +283,7 @@ namespace Api.Services.Services.Auth
 
             User user = resetPassword.User;
 
-            _passwordHashService.CreatePasswordHash(resetPasswordDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            _passwordHashService.CreatePasswordHash(resetPasswordRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 

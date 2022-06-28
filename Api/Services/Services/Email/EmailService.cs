@@ -15,28 +15,28 @@ namespace Api.Services.Services.Email
             _configuration = configuration;
         }
 
-        public void SendEmail(EmailDto emailDto)
+        public void SendEmail(EmailRequest emailRequest)
         {
             //https://ethereal.email Usado para criar falsos smtp
             var email = new MimeMessage();
             
             email.From.Add(MailboxAddress.Parse(_configuration.GetSection("Email:From").Value));
-            email.To.Add(MailboxAddress.Parse(emailDto.To));
-            if (!string.IsNullOrEmpty(emailDto.Cc))
+            email.To.Add(MailboxAddress.Parse(emailRequest.To));
+            if (!string.IsNullOrEmpty(emailRequest.Cc))
             {
-                email.Cc.Add(MailboxAddress.Parse(emailDto.Cc));
+                email.Cc.Add(MailboxAddress.Parse(emailRequest.Cc));
             }
-            email.Subject = emailDto.Subject;
+            email.Subject = emailRequest.Subject;
 
             //Opção com bodyBuilder
 
             var builder = new BodyBuilder();
 
-            builder.TextBody = emailDto.Body;
+            builder.TextBody = emailRequest.Body;
 
-            if (emailDto.Attachments != null)
+            if (emailRequest.Attachments != null)
             {
-                foreach (var item in emailDto.Attachments)
+                foreach (var item in emailRequest.Attachments)
                 {
                     builder.Attachments.Add(item.FileName, new MemoryStream(Convert.FromBase64String(item.FileBase64)));
                 }

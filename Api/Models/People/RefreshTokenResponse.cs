@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Database.Dtos.People
+namespace Api.Models.People
 {
-    public class RefreshTokenDto : BaseDto
+    public class RefreshTokenResponse : BaseModel
     {
         public int UserId { get; set; }
         [Required]

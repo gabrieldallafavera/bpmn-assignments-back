@@ -1,21 +1,21 @@
-﻿using Api.Database.Dtos.People;
+﻿using Api.Models.People;
 
 namespace Api.Services.Interface.Auth
 {
     public interface IAuthService
     {
-        UserReadDto Register(UserWriteDto userWriteDto);
+        UserResponse Register(UserRequest userRequest);
 
-        UserReadDto Login(UserReadDto userReadDto);
+        Task<UserResponse> Login(UserResponse userResponse);
 
-        RefreshTokenDto RefreshToken(RefreshTokenDto refreshTokenDto);
+        RefreshTokenResponse RefreshToken(RefreshTokenResponse refreshTokenResponse);
 
-        void ResendVerifyEmail(UserReadDto userReadDto);
+        void ResendVerifyEmail(UserResponse userResponse);
 
         void VerifyEmail(string token);
 
-        void ForgotPassword(UserReadDto userReadDto);
+        void ForgotPassword(UserResponse userResponse);
 
-        void ResetPassword(string token, ResetPasswordDto resetPasswordDto);
+        void ResetPassword(string token, ResetPasswordRequest resetPasswordRequest);
     }
 }

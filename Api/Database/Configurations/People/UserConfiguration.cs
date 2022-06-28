@@ -11,7 +11,7 @@ namespace Api.Database.Configurations.People
             
             builder
                 .Property(x => x.Name)
-                .HasColumnType("varchar(250)")
+                .HasColumnType("varchar(150)")
                 .IsRequired();
 
             builder
@@ -20,7 +20,7 @@ namespace Api.Database.Configurations.People
             
             builder
                 .Property(x => x.Username)
-                .HasColumnType("varchar(100)")
+                .HasColumnType("varchar(50)")
                 .IsRequired();
 
             builder
@@ -29,13 +29,12 @@ namespace Api.Database.Configurations.People
 
             builder
                 .Property(x => x.Email)
-                .HasColumnType("varchar(250)")
+                .HasColumnType("varchar(100)")
                 .IsRequired();
 
             builder
-                .Property(x => x.Role)
-                .HasColumnType("varchar(50)")
-                .IsRequired();
+                .Property(x => x.VerifiedAt)
+                .HasColumnType("datetime");
         }
     }
 }

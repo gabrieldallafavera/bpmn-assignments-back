@@ -23,7 +23,7 @@ namespace Api.Controllers
         /// <remarks>
         /// Exemplo de request:
         /// 
-        ///     Post /ResetPasswordDto
+        ///     Post /EmailRequest
         ///     {
         ///         "to": "exemplo@email.com",
         ///         "cc": "exemplocc@email.com", /* Opcional */
@@ -41,12 +41,12 @@ namespace Api.Controllers
         ///         ]
         ///     }
         /// </remarks>
-        /// <param name="emailDto">Objeto EmailDto</param>
+        /// <param name="emailRequest">Objeto EmailRequest</param>
         /// <response code="204">Email enviado</response>
         [HttpPost]
-        public IActionResult SendEmail(EmailDto emailDto)
+        public IActionResult SendEmail(EmailRequest emailRequest)
         {
-            _emailService.SendEmail(emailDto);
+            _emailService.SendEmail(emailRequest);
 
             return NoContent();
         }

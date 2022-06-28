@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Database.Dtos.People
+namespace Api.Models.People
 {
-    public class UserReadDto : BaseDto
+    public class UserResponse : BaseModel
     {
         public string? Username { get; set; }
         public string? Email { get; set; }
@@ -11,9 +11,5 @@ namespace Api.Database.Dtos.People
         public string? Token { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpires { get; set; }
-        public string? ResetPasswordToken { get; set; }
-        public DateTime? ResetPasswordExpires { get; set; }
-        public string? VerifyEmailToken { get; set; }
-        public DateTime? VerifyEmailExpires { get; set; }
     }
 }

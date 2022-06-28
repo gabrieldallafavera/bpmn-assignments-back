@@ -25,9 +25,16 @@ namespace Api.Services.Services.Auth
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Email, user.Email)
             };
+
+            if (user.UserRoles != null)
+            {
+                foreach (var item in user.UserRoles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, item.Role));
+                }
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
 

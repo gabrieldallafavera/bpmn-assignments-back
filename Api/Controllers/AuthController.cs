@@ -1,7 +1,7 @@
 ﻿using Api.Services.Interface.Auth;
-using Api.Database.Dtos.People;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Api.Models.People;
 
 namespace Api.Controllers
 {
@@ -44,22 +44,29 @@ namespace Api.Controllers
         /// 
         /// Exemplo de request:
         /// 
-        ///     Post /UserWriteDto
+        ///     Post /UserRequest
         ///     {
-        ///         "Name": "Exemplo Nome",
-        ///         "Username": "exemploUserName",
-        ///         "Email": "exemplo@email.com",
-        ///         "Password": "MyPassword",
-        ///         "ConfirmPassword": "MyPassword",
-        ///         "Role": "User"
+        ///         "name": "Exemplo Nome",
+        ///         "username": "exemploUserName",
+        ///         "email": "exemplo@email.com",
+        ///         "password": "MyPassword",
+        ///         "confirmPassword": "MyPassword",
+        ///         "userRoles": [
+        ///             {
+        ///                 "role" : "Admin"
+        ///             },
+        ///             {
+        ///                 "role" : "User"
+        ///             }
+        ///         ]
         ///     }
         /// </remarks>
-        /// <param name="userWriteDto">Objeto UserWriteDto</param>
+        /// <param name="userRequest">Objeto UserRequest</param>
         /// <response code="200">Retorno o objeto UserReadDto criado</response>
         [HttpPost("register"), Authorize(Roles = "Admin")]
-        public ActionResult<UserReadDto> Register(UserWriteDto userWriteDto)
+        public ActionResult<UserResponse> Register(UserRequest userRequest)
         {
-            return Ok(_authService.Register(userWriteDto));
+            return Ok(_authService.Register(userRequest));
         }
 
         /// <summary>
@@ -68,19 +75,19 @@ namespace Api.Controllers
         /// <remarks>
         /// Exemplo de request:
         /// 
-        ///     Post /UserDto
+        ///     Post /UserResponse
         ///     {
-        ///         "Username": "ExemploUserName", /* Remover se tiver email */
-        ///         "Email": "exemplo@email.com", /* Remover se tiver username */
-        ///         "Password": "MyPassword"
+        ///         "username": "ExemploUserName", /* Remover se tiver email */
+        ///         "email": "exemplo@email.com", /* Remover se tiver username */
+        ///         "password": "MyPassword"
         ///     }
         /// </remarks>
-        /// <param name="userReadDto">Objeto UserReadDto com usuário ou email e senha</param>
+        /// <param name="userResponse">Objeto UserResponse com usuário ou email e senha</param>
         /// <response code="200">Retorna o objeto UserReadDto com o token</response>
         [HttpPost("login")]
-        public ActionResult<UserReadDto> Login(UserReadDto userReadDto)
+        public async Task<ActionResult<UserResponse>> Login(UserResponse userResponse)
         {
-            return Ok(_authService.Login(userReadDto));
+            return Ok(await _authService.Login(userResponse));
         }
 
         /// <summary>
@@ -89,17 +96,17 @@ namespace Api.Controllers
         /// <remarks>
         /// Exemplo de request:
         /// 
-        ///     Post /RefreshTokenDto
+        ///     Post /RefreshTokenResponse
         ///     {
-        ///         "Token": "nreinioio289rcn932b84cm483u09hy839x2h8"
+        ///         "token": "nreinioio289rcn932b84cm483u09hy839x2h8"
         ///     }
         /// </remarks>
-        /// <param name="refreshTokenDto">Objeto RefreshTokenDto com o Token</param>
+        /// <param name="refreshTokenResponse">Objeto RefreshTokenResponse com o Token</param>
         /// <response code="200">Objeto RefreshTokenDto com o novo token</response>
         [HttpPost("refresh-token")]
-        public ActionResult<RefreshTokenDto> RefreshToken(RefreshTokenDto refreshTokenDto)
+        public ActionResult<RefreshTokenResponse> RefreshToken(RefreshTokenResponse refreshTokenResponse)
         {
-            return Ok(_authService.RefreshToken(refreshTokenDto));
+            return Ok(_authService.RefreshToken(refreshTokenResponse));
         }
 
         /// <summary>
@@ -108,17 +115,17 @@ namespace Api.Controllers
         /// <remarks>
         /// Exemplo de request:
         /// 
-        ///     Post /UserReadDto
+        ///     Post /UserResponse
         ///     {
-        ///         "Id": 2
+        ///         "id": 2
         ///     }
         /// </remarks>
-        /// <param name="userReadDto">Objeto UserReadDto com o Id</param>
+        /// <param name="userResponse">Objeto UserResponse com o Id</param>
         /// <response code="204">Email de confirmação enviado</response>
         [HttpPost("resend-verify-email")]
-        public IActionResult ResendVerifyEmail(UserReadDto userReadDto)
+        public IActionResult ResendVerifyEmail(UserResponse userResponse)
         {
-            _authService.ResendVerifyEmail(userReadDto);
+            _authService.ResendVerifyEmail(userResponse);
 
             return NoContent();
         }
@@ -142,18 +149,18 @@ namespace Api.Controllers
         /// <remarks>
         /// Exemplo de request:
         /// 
-        ///     Post /UserReadDto
+        ///     Post /UserResponse
         ///     {
-        ///         "Username": "ExemploUserName", /* Remover se tiver email */
-        ///         "Email": "exemplo@email.com" /* Remover se tiver username */
+        ///         "username": "ExemploUserName", /* Remover se tiver email */
+        ///         "email": "exemplo@email.com" /* Remover se tiver username */
         ///     }
         /// </remarks>
-        /// <param name="userReadDto">Objeto UserReadDto com nome do usuário ou senha</param>
+        /// <param name="userResponse">Objeto UserResponse com nome do usuário ou senha</param>
         /// <response code="204">Email enviado</response>
         [HttpPost("forgot-password")]
-        public IActionResult ForgotPassword(UserReadDto userReadDto)
+        public IActionResult ForgotPassword(UserResponse userResponse)
         {
-            _authService.ForgotPassword(userReadDto);
+            _authService.ForgotPassword(userResponse);
 
             return NoContent();
         }
@@ -164,19 +171,19 @@ namespace Api.Controllers
         /// <remarks>
         /// Exemplo de request:
         /// 
-        ///     Post /ResetPasswordDto
+        ///     Post /ResetPasswordRequest
         ///     {
-        ///         "Password": "ExemploDeSenha",
-        ///         "ConfirmPassword": "ExemploDeSenha"
+        ///         "password": "ExemploDeSenha",
+        ///         "confirmPassword": "ExemploDeSenha"
         ///     }
         /// </remarks>
         /// <param name="token">Token enviado por param</param>
-        /// <param name="resetPasswordDto">Objeto ResetPasswordDto com senha e confirmação</param>
+        /// <param name="resetPasswordRequest">Objeto ResetPasswordRequest com senha e confirmação</param>
         /// <response code="204">Senha redefinida</response>
         [HttpPost("reset-password/{token}")]
-        public IActionResult ResetPassword(string token, ResetPasswordDto resetPasswordDto)
+        public IActionResult ResetPassword(string token, ResetPasswordRequest resetPasswordRequest)
         {
-            _authService.ResetPassword(token, resetPasswordDto);
+            _authService.ResetPassword(token, resetPasswordRequest);
 
             return NoContent();
         }

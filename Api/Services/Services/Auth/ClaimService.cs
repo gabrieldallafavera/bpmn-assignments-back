@@ -1,5 +1,6 @@
 ﻿using Api.Services.Interface.Auth;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace Api.Services.Services.Auth
 {
@@ -23,7 +24,7 @@ namespace Api.Services.Services.Auth
                     nameIdentifier = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
                     name = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name),
                     email = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email),
-                    role = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Role)
+                    role = _httpContextAccessor.HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(x => x.Value).ToList()
                 };
             }
 

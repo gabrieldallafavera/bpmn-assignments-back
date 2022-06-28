@@ -6,6 +6,8 @@ namespace Api.Database.Entities.People
     public class UserRoles : BaseEntity
     {
         public int UserId { get; set; }
-        public string Role { get; set; }
+        public string Role { get; set; } = string.Empty;
+
+        public User? User { get; set; }
     }
 }

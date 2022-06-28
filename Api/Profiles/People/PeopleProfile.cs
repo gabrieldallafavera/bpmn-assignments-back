@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Api.Database.Dtos.People;
 using Api.Database.Entities.People;
+using Api.Models.People;
 
 namespace Api.Profiles.People
 {
@@ -8,10 +8,11 @@ namespace Api.Profiles.People
     {
         public PeopleProfile()
         {
-            CreateMap<UserWriteDto, User>();
-            CreateMap<User, UserReadDto>();
-            CreateMap<RefreshTokenDto, RefreshToken>();
-            CreateMap<RefreshToken, RefreshTokenDto>();
+            CreateMap<UserRequest, User>();
+            CreateMap<User, UserResponse>();
+            CreateMap<UserRolesRequest, UserRoles>();
+            CreateMap<RefreshTokenResponse, RefreshToken>();
+            CreateMap<RefreshToken, RefreshTokenResponse>();
         }
     }
 }

@@ -4,6 +4,6 @@ namespace Api.Services.Interface.Email
 {
     public interface IEmailService
     {
-        void SendEmail(EmailDto emailDto);
+        void SendEmail(EmailRequest emailRequest);
     }
 }
