@@ -3,21 +3,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Api.Database.Configurations.People
 {
-    public class VerifyEmailConfiguration : BaseEntityConfiguration<VerifyEmail>
+    public class TokenFunctionConfiguration : BaseEntityConfiguration<TokenFunction>
     {
-        public override void Configure(EntityTypeBuilder<VerifyEmail> builder)
+        public override void Configure(EntityTypeBuilder<TokenFunction> builder)
         {
             base.Configure(builder);
-
-            builder
-                .HasOne(l => l.User)
-                .WithOne(c => c.VerifyEmail)
-                .HasForeignKey<VerifyEmail>(l => l.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            builder
-                .HasIndex(x => x.Token)
-                .IsUnique();
 
             builder
                 .Property(x => x.Token)
@@ -28,6 +18,12 @@ namespace Api.Database.Configurations.People
                 .Property(x => x.Expires)
                 .HasColumnType("datetime")
                 .IsRequired();
+
+            builder
+                .HasOne(x => x.User)
+                .WithMany(c => c.TokenFunction)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

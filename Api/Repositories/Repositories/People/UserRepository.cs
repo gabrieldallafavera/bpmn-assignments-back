@@ -13,12 +13,51 @@ namespace Api.Repositories.Repositories.People
             return await (from U in _context.User
                           where U.Username == username || U.Email == email
                           select U)
-                          .Include(x => x.UserRoles)
-                          .Include(x => x.RefreshToken)
-                          .Include(x => x.ResetPassword)
-                          .Include(x => x.VerifyEmail)
+                          .Include(x => x.UserRole)
+                          .Include(x => x.TokenFunction)
                           .FirstOrDefaultAsync();
 
+        }
+
+        public async Task<User> Insert(User user, TokenFunction tokenFunction, List<UserRole>? listUserRole)
+        {
+            using (var dbContextTransaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    await _context.Set<User>().AddAsync(user);
+
+                    await _context.SaveChangesAsync();
+
+                    tokenFunction.UserId = user.Id;
+
+                    await _context.Set<TokenFunction>().AddAsync(tokenFunction);
+
+                    await _context.SaveChangesAsync();
+
+                    if (listUserRole != null && listUserRole.Count() > 0)
+                    {
+                        foreach (var item in listUserRole)
+                        {
+                            item.UserId = user.Id;
+                        }
+
+                        await _context.Set<UserRole>().AddRangeAsync(listUserRole);
+
+                        await _context.SaveChangesAsync();
+                    }
+
+                    await dbContextTransaction.CommitAsync();
+
+                    return user;
+                }
+                catch (Exception)
+                {
+                    await dbContextTransaction.RollbackAsync();
+    
+                    throw;
+                }
+            }
         }
     }
 }

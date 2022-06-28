@@ -12,9 +12,7 @@ namespace Api.Database.Entities.People
         public byte[] PasswordSalt { get; set; } = new byte[32];
         public DateTime? VerifiedAt { get; set; }
 
-        public IList<UserRoles>? UserRoles { get; set; }
-        public RefreshToken? RefreshToken { get; set; }
-        public ResetPassword? ResetPassword { get; set; }
-        public VerifyEmail? VerifyEmail { get; set; }
+        public IList<UserRole>? UserRole { get; set; }
+        public IList<TokenFunction>? TokenFunction { get; set; }
     }
 }

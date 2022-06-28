@@ -1,6 +1,6 @@
 ﻿namespace Api.Enums
 {
-    public enum TokenEnum : int
+    public enum TokenFunctionEnum : int
     {
         //[StringValue("Exemplo")]
         VerifyEmail = 1,

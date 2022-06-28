@@ -4,18 +4,18 @@ namespace Api.Services.Interface.Auth
 {
     public interface IAuthService
     {
-        UserResponse Register(UserRequest userRequest);
+        Task<UserResponse> Register(UserRequest userRequest);
 
         Task<UserResponse> Login(UserResponse userResponse);
 
-        RefreshTokenResponse RefreshToken(RefreshTokenResponse refreshTokenResponse);
+        Task<RefreshTokenResponse> RefreshToken(RefreshTokenResponse refreshTokenResponse);
 
-        void ResendVerifyEmail(UserResponse userResponse);
+        Task ResendVerifyEmail(UserResponse userResponse);
 
-        void VerifyEmail(string token);
+        Task VerifyEmail(string token);
 
-        void ForgotPassword(UserResponse userResponse);
+        Task ForgotPassword(UserResponse userResponse);
 
-        void ResetPassword(string token, ResetPasswordRequest resetPasswordRequest);
+        Task ResetPassword(string token, ResetPasswordRequest resetPasswordRequest);
     }
 }

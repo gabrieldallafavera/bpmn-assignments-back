@@ -51,7 +51,7 @@ namespace Api.Controllers
         ///         "email": "exemplo@email.com",
         ///         "password": "MyPassword",
         ///         "confirmPassword": "MyPassword",
-        ///         "userRoles": [
+        ///         "userRoleRequest": [
         ///             {
         ///                 "role" : "Admin"
         ///             },
@@ -64,9 +64,9 @@ namespace Api.Controllers
         /// <param name="userRequest">Objeto UserRequest</param>
         /// <response code="200">Retorno o objeto UserReadDto criado</response>
         [HttpPost("register"), Authorize(Roles = "Admin")]
-        public ActionResult<UserResponse> Register(UserRequest userRequest)
+        public async Task<ActionResult<UserResponse>> Register(UserRequest userRequest)
         {
-            return Ok(_authService.Register(userRequest));
+            return Ok(await _authService.Register(userRequest));
         }
 
         /// <summary>
@@ -104,9 +104,9 @@ namespace Api.Controllers
         /// <param name="refreshTokenResponse">Objeto RefreshTokenResponse com o Token</param>
         /// <response code="200">Objeto RefreshTokenDto com o novo token</response>
         [HttpPost("refresh-token")]
-        public ActionResult<RefreshTokenResponse> RefreshToken(RefreshTokenResponse refreshTokenResponse)
+        public async Task<ActionResult<RefreshTokenResponse>> RefreshToken(RefreshTokenResponse refreshTokenResponse)
         {
-            return Ok(_authService.RefreshToken(refreshTokenResponse));
+            return Ok(await _authService.RefreshToken(refreshTokenResponse));
         }
 
         /// <summary>
@@ -117,15 +117,16 @@ namespace Api.Controllers
         /// 
         ///     Post /UserResponse
         ///     {
-        ///         "id": 2
+        ///         "username": "exemploUsername", /* Remover se tiver email */
+        ///         "email": "MyPassword" /* Remover se tiver username */
         ///     }
         /// </remarks>
         /// <param name="userResponse">Objeto UserResponse com o Id</param>
         /// <response code="204">Email de confirmação enviado</response>
         [HttpPost("resend-verify-email")]
-        public IActionResult ResendVerifyEmail(UserResponse userResponse)
+        public async Task<IActionResult> ResendVerifyEmail(UserResponse userResponse)
         {
-            _authService.ResendVerifyEmail(userResponse);
+            await _authService.ResendVerifyEmail(userResponse);
 
             return NoContent();
         }
@@ -136,9 +137,9 @@ namespace Api.Controllers
         /// <param name="token">Token enviado por param</param>
         /// <response code="204">Email verificado</response>
         [HttpPost("verify-email/{token}")]
-        public IActionResult VerifyEmail(string token)
+        public async Task<IActionResult> VerifyEmail(string token)
         {
-            _authService.VerifyEmail(token);
+            await _authService.VerifyEmail(token);
 
             return NoContent();
         }
@@ -158,9 +159,9 @@ namespace Api.Controllers
         /// <param name="userResponse">Objeto UserResponse com nome do usuário ou senha</param>
         /// <response code="204">Email enviado</response>
         [HttpPost("forgot-password")]
-        public IActionResult ForgotPassword(UserResponse userResponse)
+        public async Task<IActionResult> ForgotPassword(UserResponse userResponse)
         {
-            _authService.ForgotPassword(userResponse);
+            await _authService.ForgotPassword(userResponse);
 
             return NoContent();
         }
@@ -181,9 +182,9 @@ namespace Api.Controllers
         /// <param name="resetPasswordRequest">Objeto ResetPasswordRequest com senha e confirmação</param>
         /// <response code="204">Senha redefinida</response>
         [HttpPost("reset-password/{token}")]
-        public IActionResult ResetPassword(string token, ResetPasswordRequest resetPasswordRequest)
+        public async Task<IActionResult> ResetPassword(string token, ResetPasswordRequest resetPasswordRequest)
         {
-            _authService.ResetPassword(token, resetPasswordRequest);
+            await _authService.ResetPassword(token, resetPasswordRequest);
 
             return NoContent();
         }

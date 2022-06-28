@@ -10,9 +10,8 @@ namespace Api.Profiles.People
         {
             CreateMap<UserRequest, User>();
             CreateMap<User, UserResponse>();
-            CreateMap<UserRolesRequest, UserRoles>();
-            CreateMap<RefreshTokenResponse, RefreshToken>();
-            CreateMap<RefreshToken, RefreshTokenResponse>();
+            CreateMap<UserRoleRequest, UserRole>();
+            CreateMap<TokenFunction, RefreshTokenResponse>();
         }
     }
 }

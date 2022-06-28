@@ -2,11 +2,12 @@
 
 namespace Api.Database.Entities.People
 {
-    [Table("RefreshToken", Schema = "People")]
-    public class RefreshToken : BaseEntity
+    [Table("TokenFunction", Schema = "People")]
+    public class TokenFunction : BaseEntity
     {
         public int UserId { get; set; }
         public string Token { get; set; } = string.Empty;
+        public int Type { get; set; }
         public DateTime Expires { get; set; }
 
         public User? User { get; set; }

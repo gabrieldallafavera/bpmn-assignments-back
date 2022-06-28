@@ -28,9 +28,9 @@ namespace Api.Services.Services.Auth
                 new Claim(ClaimTypes.Email, user.Email)
             };
 
-            if (user.UserRoles != null)
+            if (user.UserRole != null && user.UserRole.Count() > 0)
             {
-                foreach (var item in user.UserRoles)
+                foreach (var item in user.UserRole)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, item.Role));
                 }

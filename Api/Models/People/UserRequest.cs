@@ -14,6 +14,6 @@ namespace Api.Models.People
         public string Password { get; set; } = string.Empty;
         [Required, Compare("Password", ErrorMessage = "As senhas não batem.")]
         public string ConfirmPassword { get; set; } = string.Empty;
-        public IList<UserRolesRequest>? UserRolesDtos { get; set; }
+        public IList<UserRoleRequest>? UserRoleRequest { get; set; }
     }
 }

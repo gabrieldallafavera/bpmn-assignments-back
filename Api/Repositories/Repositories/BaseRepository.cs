@@ -12,38 +12,38 @@ namespace Repository.Repository
             _context = context;
         }
 
-        public TEntity? FindById(int id)
+        public async Task<TEntity?> FindById(int id)
         {
-            return _context.Set<TEntity>().Find(id);
+            return await _context.Set<TEntity>().FindAsync(id);
         }
 
-        public IList<TEntity> List()
+        public async Task<IList<TEntity>> List()
         {
-            return _context.Set<TEntity>().ToList();
+            return await _context.Set<TEntity>().ToListAsync();
         }
 
-        public object Paginate(int itemsPerPage, int page)
+        public async Task<object> Paginate(int itemsPerPage, int page)
         {
-            return PaginationBuilder<TEntity>.ToPagination(_context.Set<TEntity>().ToList(), itemsPerPage, page);
+            return PaginationBuilder<TEntity>.ToPagination(await _context.Set<TEntity>().ToListAsync(), itemsPerPage, page);
         }
 
-        public TEntity Insert(TEntity data)
+        public async Task<TEntity> Insert(TEntity data)
         {
-            _context.Set<TEntity>().Add(data);
-            _context.SaveChanges();
+            await _context.Set<TEntity>().AddAsync(data);
+            await _context.SaveChangesAsync();
 
             return data;
         }
 
-        public TEntity Update(TEntity data)
+        public async Task<TEntity> Update(TEntity data)
         {
             _context.Set<TEntity>().Update(data);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return data;
         }
 
-        public bool Delete(int id)
+        public async Task Delete(int id)
         {
             var entidade = _context.Set<TEntity>().Find(id);
 
@@ -52,9 +52,7 @@ namespace Repository.Repository
 
             _context.Set<TEntity>().Remove(entidade);
 
-            _context.SaveChanges();
-
-            return true;
+            await _context.SaveChangesAsync();
         }
     }
 }

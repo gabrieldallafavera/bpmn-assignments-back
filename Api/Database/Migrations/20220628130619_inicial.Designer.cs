@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Database.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20220627231715_inicial")]
+    [Migration("20220628130619_inicial")]
     partial class inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,7 +24,7 @@ namespace Api.Database.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Api.Database.Entities.People.RefreshToken", b =>
+            modelBuilder.Entity("Api.Database.Entities.People.TokenFunction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,46 +48,8 @@ namespace Api.Database.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(200)");
 
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("datetime");
-
-                    b.Property<int>("UserId")
+                    b.Property<int>("Type")
                         .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Token")
-                        .IsUnique();
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("RefreshToken", "People");
-                });
-
-            modelBuilder.Entity("Api.Database.Entities.People.ResetPassword", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("datetime");
-
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("datetime");
@@ -97,13 +59,9 @@ namespace Api.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Token")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("ResetPassword", "People");
+                    b.ToTable("TokenFunction", "People");
                 });
 
             modelBuilder.Entity("Api.Database.Entities.People.User", b =>
@@ -163,17 +121,17 @@ namespace Api.Database.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2022, 6, 27, 20, 17, 14, 870, DateTimeKind.Local).AddTicks(6053),
+                            Created = new DateTime(2022, 6, 28, 10, 6, 19, 729, DateTimeKind.Local).AddTicks(1797),
                             Email = "myadminuser@email.com",
                             Name = "My Admin User",
-                            PasswordHash = new byte[] { 166, 120, 63, 191, 102, 163, 209, 4, 177, 52, 39, 192, 207, 69, 203, 253, 91, 181, 158, 43, 76, 74, 130, 133, 132, 93, 70, 135, 93, 161, 87, 43, 228, 180, 10, 167, 109, 212, 131, 152, 14, 38, 155, 35, 247, 120, 252, 130, 71, 29, 97, 65, 170, 19, 83, 23, 64, 196, 199, 38, 33, 179, 214, 85 },
-                            PasswordSalt = new byte[] { 12, 204, 72, 205, 114, 13, 109, 122, 159, 55, 153, 128, 78, 112, 237, 18, 245, 153, 95, 205, 92, 67, 129, 16, 138, 69, 63, 75, 196, 135, 227, 165, 242, 121, 246, 177, 32, 205, 93, 187, 126, 246, 48, 21, 244, 70, 179, 216, 65, 133, 182, 97, 144, 241, 0, 102, 160, 56, 28, 125, 76, 40, 230, 39, 50, 81, 165, 115, 140, 189, 243, 59, 173, 150, 221, 250, 247, 237, 100, 81, 81, 140, 215, 152, 191, 31, 116, 170, 95, 179, 127, 28, 34, 131, 186, 164, 216, 175, 64, 27, 83, 158, 111, 10, 132, 86, 163, 147, 56, 231, 32, 19, 179, 73, 130, 110, 33, 98, 253, 211, 240, 206, 34, 85, 132, 65, 179, 137 },
+                            PasswordHash = new byte[] { 14, 83, 84, 233, 156, 115, 68, 150, 44, 37, 248, 57, 187, 45, 123, 72, 169, 177, 156, 247, 170, 49, 208, 107, 210, 157, 215, 67, 186, 35, 94, 64, 77, 140, 58, 233, 80, 7, 251, 45, 47, 106, 88, 115, 213, 237, 33, 188, 206, 58, 181, 54, 19, 9, 171, 254, 205, 62, 54, 162, 147, 105, 120, 112 },
+                            PasswordSalt = new byte[] { 245, 30, 239, 62, 102, 19, 232, 143, 234, 129, 253, 94, 106, 254, 160, 76, 182, 75, 224, 129, 85, 128, 21, 12, 164, 208, 61, 146, 51, 152, 221, 136, 201, 60, 231, 87, 172, 49, 188, 39, 118, 255, 221, 54, 23, 213, 107, 23, 249, 123, 56, 225, 215, 146, 77, 21, 187, 45, 219, 232, 12, 193, 133, 229, 204, 87, 52, 123, 198, 11, 56, 18, 2, 79, 86, 39, 113, 45, 225, 46, 106, 14, 210, 224, 1, 97, 145, 143, 175, 20, 133, 104, 143, 143, 212, 54, 64, 143, 119, 137, 28, 42, 51, 41, 211, 23, 146, 203, 190, 50, 32, 20, 137, 250, 169, 20, 27, 228, 20, 102, 243, 102, 242, 207, 250, 173, 123, 82 },
                             Username = "MyAdminUser",
-                            VerifiedAt = new DateTime(2022, 6, 27, 20, 17, 14, 870, DateTimeKind.Local).AddTicks(6067)
+                            VerifiedAt = new DateTime(2022, 6, 28, 10, 6, 19, 729, DateTimeKind.Local).AddTicks(1811)
                         });
                 });
 
-            modelBuilder.Entity("Api.Database.Entities.People.UserRoles", b =>
+            modelBuilder.Entity("Api.Database.Entities.People.UserRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -204,92 +162,29 @@ namespace Api.Database.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserRoles", "People");
+                    b.ToTable("UserRole", "People");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2022, 6, 27, 20, 17, 14, 870, DateTimeKind.Local).AddTicks(6190),
+                            Created = new DateTime(2022, 6, 28, 10, 6, 19, 729, DateTimeKind.Local).AddTicks(1930),
                             Role = "Admin",
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2022, 6, 27, 20, 17, 14, 870, DateTimeKind.Local).AddTicks(6193),
+                            Created = new DateTime(2022, 6, 28, 10, 6, 19, 729, DateTimeKind.Local).AddTicks(1932),
                             Role = "User",
                             UserId = 1
                         });
                 });
 
-            modelBuilder.Entity("Api.Database.Entities.People.VerifyEmail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("datetime");
-
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("datetime");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Token")
-                        .IsUnique();
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("VerifyEmail", "People");
-                });
-
-            modelBuilder.Entity("Api.Database.Entities.People.RefreshToken", b =>
+            modelBuilder.Entity("Api.Database.Entities.People.TokenFunction", b =>
                 {
                     b.HasOne("Api.Database.Entities.People.User", "User")
-                        .WithOne("RefreshToken")
-                        .HasForeignKey("Api.Database.Entities.People.RefreshToken", "UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Api.Database.Entities.People.ResetPassword", b =>
-                {
-                    b.HasOne("Api.Database.Entities.People.User", "User")
-                        .WithOne("ResetPassword")
-                        .HasForeignKey("Api.Database.Entities.People.ResetPassword", "UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Api.Database.Entities.People.UserRoles", b =>
-                {
-                    b.HasOne("Api.Database.Entities.People.User", "User")
-                        .WithMany("UserRoles")
+                        .WithMany("TokenFunction")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -297,11 +192,11 @@ namespace Api.Database.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Api.Database.Entities.People.VerifyEmail", b =>
+            modelBuilder.Entity("Api.Database.Entities.People.UserRole", b =>
                 {
                     b.HasOne("Api.Database.Entities.People.User", "User")
-                        .WithOne("VerifyEmail")
-                        .HasForeignKey("Api.Database.Entities.People.VerifyEmail", "UserId")
+                        .WithMany("UserRole")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -310,13 +205,9 @@ namespace Api.Database.Migrations
 
             modelBuilder.Entity("Api.Database.Entities.People.User", b =>
                 {
-                    b.Navigation("RefreshToken");
+                    b.Navigation("TokenFunction");
 
-                    b.Navigation("ResetPassword");
-
-                    b.Navigation("UserRoles");
-
-                    b.Navigation("VerifyEmail");
+                    b.Navigation("UserRole");
                 });
 #pragma warning restore 612, 618
         }

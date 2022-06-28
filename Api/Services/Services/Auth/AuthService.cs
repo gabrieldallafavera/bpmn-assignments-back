@@ -1,4 +1,5 @@
 ﻿using Api.Database.Entities.People;
+using Api.Enums;
 using Api.Models.Email;
 using Api.Models.People;
 using Api.Repositories.Interface.People;
@@ -18,11 +19,9 @@ namespace Api.Services.Services.Auth
         private readonly IPasswordHashService _passwordHashService;
         
         private readonly IUserRepository _userRepository;
-        private readonly IVerifyEmailRepository _verifyEmailRepository;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
-        private readonly IResetPasswordRepository _resetPasswordRepository;
+        private readonly ITokenFunctionRepository _tokenFunctionRepository;
 
-        public AuthService(IMapper mapper, IHttpContextAccessor httpContextAccessor, IEmailService emailService, ITokenService tokenService, IPasswordHashService passwordHashService, IUserRepository userRepository, IVerifyEmailRepository verifyEmailRepository, IRefreshTokenRepository refreshTokenRepository, IResetPasswordRepository resetPasswordRepository)
+        public AuthService(IMapper mapper, IHttpContextAccessor httpContextAccessor, IEmailService emailService, ITokenService tokenService, IPasswordHashService passwordHashService, IUserRepository userRepository, ITokenFunctionRepository tokenFunctionRepository)
         {
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
@@ -32,12 +31,10 @@ namespace Api.Services.Services.Auth
             _passwordHashService = passwordHashService;
             
             _userRepository = userRepository;
-            _verifyEmailRepository = verifyEmailRepository;
-            _refreshTokenRepository = refreshTokenRepository;
-            _resetPasswordRepository = resetPasswordRepository;
+            _tokenFunctionRepository = tokenFunctionRepository;
         }
 
-        public UserResponse Register(UserRequest userRequest)
+        public async Task<UserResponse> Register(UserRequest userRequest)
         {
             _passwordHashService.CreatePasswordHash(userRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
@@ -46,27 +43,35 @@ namespace Api.Services.Services.Auth
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-            user = _userRepository.Insert(user);
+            List<UserRole> listUserRole = new List<UserRole>();
+
+            if(userRequest.UserRoleRequest != null)
+            {
+                foreach (var item in userRequest.UserRoleRequest)
+                {
+                    listUserRole.Add(new UserRole { Role = item.Role });
+                }
+            }
 
             _tokenService.SetVerifyEmail(out string token, out DateTime created, out DateTime expires);
 
-            VerifyEmail verifyEmail = new VerifyEmail();
+            TokenFunction tokenFunction = new TokenFunction();
 
-            verifyEmail.Token = token;
-            verifyEmail.Expires = expires;
-            verifyEmail.Created = created;
-            verifyEmail.UserId = user.Id;
+            tokenFunction.Token = token;
+            tokenFunction.Type = (int)TokenFunctionEnum.VerifyEmail;
+            tokenFunction.Expires = expires;
+            tokenFunction.Created = created;
 
             EmailRequest emailDto = new EmailRequest
             {
                 To = user.Email,
                 Subject = "Confirmação de email.",
-                Body = verifyEmail.Token
+                Body = tokenFunction.Token
             };
 
             _emailService.SendEmail(emailDto);
 
-            _verifyEmailRepository.Insert(verifyEmail);
+            user = await _userRepository.Insert(user, tokenFunction, listUserRole);
 
             return _mapper.Map<UserResponse>(user);
         }
@@ -94,66 +99,70 @@ namespace Api.Services.Services.Auth
 
             _tokenService.SetRefreshToken(out string newRefreshToken, out DateTime refreshTokenCreated, out DateTime refreshTokenExpires);
             
-            RefreshToken refreshToken = new RefreshToken();
-            if (user.RefreshToken != null)
-            {
-                refreshToken = user.RefreshToken;
-            }
-            refreshToken.Token = newRefreshToken;
-            refreshToken.Expires = refreshTokenExpires;
-            refreshToken.Created = refreshTokenCreated;
+            TokenFunction tokenFunction = new TokenFunction();
 
-            if (user.RefreshToken != null)
+            var refreshToken = user.TokenFunction?.Where(x => x.Type == (int)TokenFunctionEnum.RefreshToken).FirstOrDefault();
+
+            if (refreshToken != null)
             {
-                refreshToken = _refreshTokenRepository.Update(refreshToken);
+                tokenFunction = refreshToken;
+            }
+            tokenFunction.Token = newRefreshToken;
+            tokenFunction.Type = (int)TokenFunctionEnum.RefreshToken;
+            tokenFunction.Expires = refreshTokenExpires;
+            tokenFunction.Created = refreshTokenCreated;
+
+            if (refreshToken != null)
+            {
+                tokenFunction = await _tokenFunctionRepository.Update(tokenFunction);
             }
             else
             {
-                refreshToken.UserId = user.Id;
-                refreshToken = _refreshTokenRepository.Insert(refreshToken);
+                tokenFunction.UserId = user.Id;
+                tokenFunction = await _tokenFunctionRepository.Insert(tokenFunction);
             }
 
-            userResponse.RefreshToken = refreshToken.Token;
-            userResponse.RefreshTokenExpires = refreshToken.Expires;
+            userResponse.RefreshToken = tokenFunction.Token;
+            userResponse.RefreshTokenExpires = tokenFunction.Expires;
 
             return userResponse;
         }
 
-        public RefreshTokenResponse RefreshToken(RefreshTokenResponse refreshTokenResponse)
+        public async Task<RefreshTokenResponse> RefreshToken(RefreshTokenResponse refreshTokenResponse)
         {
             var cookieToken = _httpContextAccessor?.HttpContext?.Request.Cookies["refreshToken"];
 
-            RefreshToken? refreshToken = _refreshTokenRepository.Find(refreshTokenResponse.Token);
+            TokenFunction? tokenFunction = await _tokenFunctionRepository.Find(refreshTokenResponse.Token, (int)TokenFunctionEnum.RefreshToken);
 
-            if (refreshToken == null || refreshToken.User == null)
+            if (tokenFunction == null || tokenFunction.User == null)
             {
                 throw new BadHttpRequestException("Token não encontrado");
             }
-            else if (!refreshToken.Token.Equals(cookieToken))
+            else if (!tokenFunction.Token.Equals(cookieToken))
             {
                 throw new UnauthorizedAccessException("Token inválido.");
             }
-            else if (refreshToken.Expires < DateTime.Now)
+            else if (tokenFunction.Expires < DateTime.Now)
             {
                 throw new UnauthorizedAccessException("Token expirado.");
             }
 
-            string token = _tokenService.CreateToken(refreshToken.User);
+            string token = _tokenService.CreateToken(tokenFunction.User);
             _tokenService.SetRefreshToken(out string newRefreshToken, out DateTime tokenCreated, out DateTime tokenExpires);
 
-            refreshToken.Token = newRefreshToken;
-            refreshToken.Expires = tokenExpires;
-            refreshToken.Created = tokenCreated;
+            tokenFunction.Token = newRefreshToken;
+            tokenFunction.Expires = tokenExpires;
+            tokenFunction.Created = tokenCreated;
 
-            refreshToken = _refreshTokenRepository.Update(refreshToken);
+            tokenFunction = await _tokenFunctionRepository.Update(tokenFunction);
 
-            refreshTokenResponse = _mapper.Map<RefreshTokenResponse>(refreshToken);
+            refreshTokenResponse = _mapper.Map<RefreshTokenResponse>(tokenFunction);
             refreshTokenResponse.NewToken = token;
 
             return refreshTokenResponse;
         }
 
-        public async void ResendVerifyEmail(UserResponse userResponse)
+        public async Task ResendVerifyEmail(UserResponse userResponse)
         {
             User? user = await _userRepository.Find(userResponse.Username, userResponse.Email);
 
@@ -161,68 +170,72 @@ namespace Api.Services.Services.Auth
             {
                 throw new KeyNotFoundException("Usuário não encontrado.");
             }
-            else if (user.VerifiedAt == null)
+            else if (user.VerifiedAt != null)
             {
                 throw new BadHttpRequestException("Email já verificado.");
             }
 
             _tokenService.SetVerifyEmail(out string token, out DateTime created, out DateTime expires);
 
-            VerifyEmail verifyEmail = new VerifyEmail();
-            if (user.VerifyEmail != null)
+            TokenFunction tokenFunction = new TokenFunction();
+
+            var verifyEmail = user.TokenFunction?.Where(x => x.Type == (int)TokenFunctionEnum.VerifyEmail).FirstOrDefault();
+
+            if (verifyEmail != null)
             {
-                verifyEmail = user.VerifyEmail;
+                tokenFunction = verifyEmail;
             }
-            verifyEmail.Token = token;
-            verifyEmail.Expires = expires;
-            verifyEmail.Created = created;
+            tokenFunction.Token = token;
+            tokenFunction.Type = (int)TokenFunctionEnum.VerifyEmail;
+            tokenFunction.Expires = expires;
+            tokenFunction.Created = created;
 
             EmailRequest emailDto = new EmailRequest
             {
                 To = user.Email,
                 Subject = "Confirmação de email.",
-                Body = verifyEmail.Token
+                Body = tokenFunction.Token
             };
 
             _emailService.SendEmail(emailDto);
 
-            if (user.ResetPassword != null)
+            if (verifyEmail != null)
             {
-                _verifyEmailRepository.Update(verifyEmail);
+                await _tokenFunctionRepository.Update(tokenFunction);
             }
             else
             {
-                verifyEmail.UserId = user.Id;
-                _verifyEmailRepository.Insert(verifyEmail);
+                tokenFunction.UserId = user.Id;
+                await _tokenFunctionRepository.Insert(tokenFunction);
             }
         }
 
-        public void VerifyEmail(string token)
+        public async Task VerifyEmail(string token)
         {
             var cookieToken = _httpContextAccessor?.HttpContext?.Request.Cookies["verifyEmail"];
 
-            VerifyEmail? verifyEmail = _verifyEmailRepository.Find(token);
+            TokenFunction? tokenFunction = await _tokenFunctionRepository.Find(token, (int)TokenFunctionEnum.VerifyEmail);
 
-            if (verifyEmail == null || verifyEmail.User == null)
+            if (tokenFunction == null || tokenFunction.User == null)
             {
                 throw new BadHttpRequestException("Token não encontrado");
             }
-            else if (!verifyEmail.Token.Equals(cookieToken))
+            else if (!tokenFunction.Token.Equals(cookieToken))
             {
                 throw new UnauthorizedAccessException("Token inválido.");
             }
-            else if (verifyEmail.Expires < DateTime.Now)
+            else if (tokenFunction.Expires < DateTime.Now)
             {
                 throw new UnauthorizedAccessException("Token expirado.");
             }
 
-            User user = verifyEmail.User;
+            User user = tokenFunction.User;
             user.VerifiedAt = DateTime.Now;
 
-            _userRepository.Update(user);
+            await _userRepository.Update(user);
         }
 
-        public async void ForgotPassword(UserResponse userResponse)
+        public async Task ForgotPassword(UserResponse userResponse)
         {
             User? user = await _userRepository.Find(userResponse.Username, userResponse.Email);
 
@@ -233,61 +246,65 @@ namespace Api.Services.Services.Auth
             
             _tokenService.SetResetPassword(out string token, out DateTime created, out DateTime expires);
 
-            ResetPassword resetPassword = new ResetPassword();
-            if (user.ResetPassword != null)
+            TokenFunction tokenFunction = new TokenFunction();
+
+            var resetPassword = user.TokenFunction?.Where(x => x.Type == (int)TokenFunctionEnum.ResetPassword).FirstOrDefault();
+
+            if (resetPassword != null)
             {
-                resetPassword = user.ResetPassword;
+                tokenFunction = resetPassword;
             }
-            resetPassword.Token = token;
-            resetPassword.Expires = expires;
-            resetPassword.Created = created;
+            tokenFunction.Token = token;
+            tokenFunction.Type = (int)TokenFunctionEnum.ResetPassword;
+            tokenFunction.Expires = expires;
+            tokenFunction.Created = created;
 
             EmailRequest emailDto = new EmailRequest
             {
                 To = user.Email,
                 Subject = "Redefinir senha.",
-                Body = resetPassword.Token
+                Body = tokenFunction.Token
             };
 
             _emailService.SendEmail(emailDto);
 
-            if (user.ResetPassword != null)
+            if (resetPassword != null)
             {
-                _resetPasswordRepository.Update(resetPassword);
+                await _tokenFunctionRepository.Update(tokenFunction);
             }
             else
             {
-                resetPassword.UserId = user.Id;
-                _resetPasswordRepository.Insert(resetPassword);
+                tokenFunction.UserId = user.Id;
+                await _tokenFunctionRepository.Insert(tokenFunction);
             }
         }
 
-        public void ResetPassword(string token, ResetPasswordRequest resetPasswordRequest)
+        public async Task ResetPassword(string token, ResetPasswordRequest resetPasswordRequest)
         {
             var cookieToken = _httpContextAccessor?.HttpContext?.Request.Cookies["resetPassword"];
 
-            ResetPassword? resetPassword = _resetPasswordRepository.Find(token);
+            TokenFunction? tokenFunction = await _tokenFunctionRepository.Find(token, (int)TokenFunctionEnum.ResetPassword);
 
-            if (resetPassword == null || resetPassword.User == null)
+            if (tokenFunction == null || tokenFunction.User == null)
             {
                 throw new BadHttpRequestException("Token não encontrado");
             }
-            else if (!resetPassword.Token.Equals(cookieToken))
+            else if (!tokenFunction.Token.Equals(cookieToken))
             {
                 throw new UnauthorizedAccessException("Token inválido.");
             }
-            else if (resetPassword.Expires < DateTime.Now)
+            else if (tokenFunction.Expires < DateTime.Now)
             {
                 throw new UnauthorizedAccessException("Token expirado.");
             }
 
-            User user = resetPassword.User;
+            User user = tokenFunction.User;
 
             _passwordHashService.CreatePasswordHash(resetPasswordRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-            _userRepository.Update(user);
+            await _userRepository.Update(user);
         }
     }
 }

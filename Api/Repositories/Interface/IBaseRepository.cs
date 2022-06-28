@@ -2,16 +2,16 @@
 {
     public interface IBaseRepository<TEntity> where TEntity : class
     {
-        TEntity? FindById(int id);
+        Task<TEntity?> FindById(int id);
 
-        IList<TEntity> List();
+        Task<IList<TEntity>> List();
         
-        object Paginate(int itemsPerPage, int page);
+        Task<object> Paginate(int itemsPerPage, int page);
         
-        TEntity Insert(TEntity data);
+        Task<TEntity> Insert(TEntity data);
         
-        TEntity Update(TEntity data);
+        Task<TEntity> Update(TEntity data);
         
-        bool Delete(int id);
+        Task Delete(int id);
     }
 }

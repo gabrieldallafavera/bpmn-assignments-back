@@ -2,8 +2,8 @@
 
 namespace Api.Database.Entities.People
 {
-    [Table("UserRoles", Schema = "People")]
-    public class UserRoles : BaseEntity
+    [Table("UserRole", Schema = "People")]
+    public class UserRole : BaseEntity
     {
         public int UserId { get; set; }
         public string Role { get; set; } = string.Empty;
