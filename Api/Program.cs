@@ -9,6 +9,7 @@ using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
 using System.Text;
 using Api.Helpers.Exceptions;
+using Api.Helpers.Exceptions.CustomExceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,8 +64,15 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    //.AddCookie(options =>
+    //{
+    //    options.LoginPath = "/unauthorized";
+    //    options.AccessDeniedPath = "/forbidden";
+    //})
     .AddJwtBearer(options =>
     {
+        //options.Audience = "https://localhost:7074/";
+        //options.Authority = "https://localhost:7074/";
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -96,5 +104,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//app.MapGet("unauthorized", () => { throw new UnauthorizedAccessException("Acesso não autorizado."); });
+
+//app.MapGet("forbidden", () => { throw new ForbiddenException("Acesso negado."); });
 
 app.Run();
