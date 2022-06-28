@@ -44,9 +44,9 @@ namespace Api.Controllers
         /// <param name="emailRequest">Objeto EmailRequest</param>
         /// <response code="204">Email enviado</response>
         [HttpPost]
-        public IActionResult SendEmail(EmailRequest emailRequest)
+        public async Task<IActionResult> SendEmail(EmailRequest emailRequest)
         {
-            _emailService.SendEmail(emailRequest);
+            await _emailService.SendEmail(emailRequest);
 
             return NoContent();
         }

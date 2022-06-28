@@ -69,7 +69,7 @@ namespace Api.Services.Services.Auth
                 Body = tokenFunction.Token
             };
 
-            _emailService.SendEmail(emailDto);
+            await _emailService.SendEmail(emailDto);
 
             user = await _userRepository.Insert(user, tokenFunction, listUserRole);
 
@@ -197,7 +197,7 @@ namespace Api.Services.Services.Auth
                 Body = tokenFunction.Token
             };
 
-            _emailService.SendEmail(emailDto);
+            await _emailService.SendEmail(emailDto);
 
             if (verifyEmail != null)
             {
@@ -266,7 +266,7 @@ namespace Api.Services.Services.Auth
                 Body = tokenFunction.Token
             };
 
-            _emailService.SendEmail(emailDto);
+            await _emailService.SendEmail(emailDto);
 
             if (resetPassword != null)
             {

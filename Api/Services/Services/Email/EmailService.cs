@@ -15,7 +15,7 @@ namespace Api.Services.Services.Email
             _configuration = configuration;
         }
 
-        public void SendEmail(EmailRequest emailRequest)
+        public async Task SendEmail(EmailRequest emailRequest)
         {
             //https://ethereal.email Usado para criar falsos smtp
             var email = new MimeMessage();
@@ -63,10 +63,10 @@ namespace Api.Services.Services.Email
             //email.Body = multipart;
 
             using var smtp = new SmtpClient(); // Usar Mailkit using ao invés do System
-            smtp.Connect(_configuration.GetSection("Email:Host").Value, int.Parse(_configuration.GetSection("Email:Port").Value), SecureSocketOptions.StartTls); // SecureSocketOptions.Auto, SecureSocketOptions.SslOnConnect, verificar possibilidades
-            smtp.Authenticate(_configuration.GetSection("Email:Username").Value, _configuration.GetSection("Email:Password").Value);
-            smtp.Send(email);
-            smtp.Disconnect(true);
+            await smtp.ConnectAsync(_configuration.GetSection("Email:Host").Value, int.Parse(_configuration.GetSection("Email:Port").Value), SecureSocketOptions.StartTls); // SecureSocketOptions.Auto, SecureSocketOptions.SslOnConnect, verificar possibilidades
+            await smtp.AuthenticateAsync(_configuration.GetSection("Email:Username").Value, _configuration.GetSection("Email:Password").Value);
+            await smtp.SendAsync(email);
+            await smtp.DisconnectAsync(true);
         }
     }
 }

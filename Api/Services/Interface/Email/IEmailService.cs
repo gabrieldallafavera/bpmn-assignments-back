@@ -4,6 +4,6 @@ namespace Api.Services.Interface.Email
 {
     public interface IEmailService
     {
-        void SendEmail(EmailRequest emailRequest);
+        Task SendEmail(EmailRequest emailRequest);
     }
 }
