@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Api.Helpers.Exceptions
 {
@@ -23,7 +24,7 @@ namespace Api.Helpers.Exceptions
             catch (Exception exception)
             {
                 var response = httpContext.Response;
-                response.ContentType = "application/json";
+                response.ContentType = Application.Json;
 
                 string result = string.Empty;
 
@@ -54,23 +55,12 @@ namespace Api.Helpers.Exceptions
                 {
                     switch (exception)
                     {
-                        case SqlException:
-
-
                         case NoContentException:
                             response.StatusCode = (int)HttpStatusCode.NoContent;
                             break;
 
                         case BadHttpRequestException:
                             response.StatusCode = (int)HttpStatusCode.BadRequest;
-                            break;
-
-                        case UnauthorizedAccessException:
-                            response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                            break;
-
-                        case ForbiddenException:
-                            response.StatusCode = (int)HttpStatusCode.Forbidden;
                             break;
 
                         case KeyNotFoundException:
@@ -82,11 +72,13 @@ namespace Api.Helpers.Exceptions
                             break;
                     }
 
-                    result = JsonSerializer.Serialize(new
-                    {
-                        //message = response.StatusCode != (int)HttpStatusCode.InternalServerError ? exception?.Message : "Erro interno."
-                        message = exception?.Message
-                    });
+                    result = JsonSerializer.Serialize(
+#if !DEBUG
+                        response.StatusCode != (int)HttpStatusCode.InternalServerError ? exception?.Message : "Erro interno."
+#else
+                        exception?.Message
+#endif
+                    );
                 }
                 
                 if (!response.StatusCode.Equals((int)HttpStatusCode.NoContent))

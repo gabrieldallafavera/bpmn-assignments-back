@@ -23,7 +23,7 @@ namespace Api.Database
         }
 
         public DbSet<User> User => Set<User>();
-        public DbSet<UserRole> UserRoles => Set<UserRole>();
+        public DbSet<UserRole> UserRole => Set<UserRole>();
         public DbSet<TokenFunction> TokenFunction => Set<TokenFunction>();
     }
 }
