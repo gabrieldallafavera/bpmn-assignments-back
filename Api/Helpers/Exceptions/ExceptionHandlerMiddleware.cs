@@ -63,6 +63,10 @@ namespace Api.Helpers.Exceptions
                             response.StatusCode = (int)HttpStatusCode.BadRequest;
                             break;
 
+                        case UnauthorizedAccessException:
+                            response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                            break;
+
                         case KeyNotFoundException:
                             response.StatusCode = (int)HttpStatusCode.NotFound;
                             break;

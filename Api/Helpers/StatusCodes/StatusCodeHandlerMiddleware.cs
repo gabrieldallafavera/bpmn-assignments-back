@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Api.Helpers.StatusCodes
 {
@@ -17,15 +18,18 @@ namespace Api.Helpers.StatusCodes
 
             var response = context.Response;
 
-            if (response.StatusCode == (int)System.Net.HttpStatusCode.Unauthorized)
+            if (!response.Headers.IsReadOnly)
             {
-                response.ContentType = System.Net.Mime.MediaTypeNames.Application.Json;
-                await response.WriteAsync(System.Text.Json.JsonSerializer.Serialize("Não autenticado."));
-            }
-            else if (response.StatusCode == (int)System.Net.HttpStatusCode.Forbidden)
-            {
-                response.ContentType = System.Net.Mime.MediaTypeNames.Application.Json;
-                await response.WriteAsync(System.Text.Json.JsonSerializer.Serialize("Acesso negado."));
+                if (response.StatusCode == (int)System.Net.HttpStatusCode.Unauthorized)
+                {
+                    response.ContentType = Application.Json;
+                    await response.WriteAsync(JsonSerializer.Serialize("Não autenticado."));
+                }
+                else if (response.StatusCode == (int)System.Net.HttpStatusCode.Forbidden)
+                {
+                    response.ContentType = Application.Json;
+                    await response.WriteAsync(JsonSerializer.Serialize("Acesso negado."));
+                }
             }
         }
     }
