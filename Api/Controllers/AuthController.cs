@@ -6,7 +6,7 @@ using Api.Models.People;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("autentication")]
+    [Route("authentication")]
     [Produces("application/json")]
     [ApiExplorerSettings(GroupName = "Autenticação")]
     public class AuthController : ControllerBase
