@@ -14,7 +14,24 @@ using Api.Helpers.StatusCodes;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<Context>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
+
+var server = builder.Configuration["DbServer"];
+var port = builder.Configuration["DbPort"];
+var user = builder.Configuration["DbUser"];
+var password = builder.Configuration["Password"];
+var database = builder.Configuration["Database"];
+
+string connectionString = string.Empty;
+if (!string.IsNullOrEmpty(server) && !string.IsNullOrEmpty(port) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(database))
+{
+    connectionString = $"Server={server},{port}; Initial Catalog={database}; User ID={user}; Password={password}; Persist Security Info=True;";
+}
+else
+{
+    connectionString = builder.Configuration.GetConnectionString("Connection");
+}
+
+builder.Services.AddDbContext<Context>(options => options.UseSqlServer(connectionString));
 
 Scope.OnScopeCreating(builder.Services);
 
@@ -94,6 +111,11 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api.BpmnAssignments");
 });
+
+using (var scope = app.Services.CreateScope()) {
+    var context = scope.ServiceProvider.GetRequiredService<Context>();
+    context.Database.Migrate();
+}
 
 app.UseMiddleware<StatusCodeHandlerMiddleware>();
 

@@ -1,11 +1,5 @@
 # Executar o projeto como docker
 
-## Publicar o projeto
-
-```bash
-$ dotnet publish -c Release
-```
-
 ## Executar o comando para criar a build do projeto (imagem no docker)
 
 ```bash

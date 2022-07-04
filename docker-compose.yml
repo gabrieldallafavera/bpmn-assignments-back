@@ -1,0 +1,39 @@
+version: "3"
+name: "bpmn-assignments-api"
+services:
+  mssql-server:
+    container_name: mssql-server
+    image: mcr.microsoft.com/mssql/server
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "My@P@ss2022W0rd"
+    volumes:
+      - sqlsystem:/var/opt/mssql/
+      - sqldata:/var/opt/sqlserver/data
+      - sqllog:/var/opt/sqlserver/log
+      - sqlbackup:/var/opt/sqlserver/backup
+    ports:
+      - "1433:1433"
+    restart: always
+    #RUN docker exec -it mssql-server /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P My@P@ss2022W0rd -d master -Q "IF NOT EXISTS (SELECT principal_id FROM master.sys.server_principals where name = 'bpmnapi') CREATE LOGIN bpmnapi WITH PASSWORD = 'My@1Password'"
+  bpmn-api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DbServer: "mssql-server"
+      DbPort: "1433"
+      DbUser: "SA"
+      Password: "My@P@ss2022W0rd"
+      Database: "BpmnAssignments"
+    ports:
+      - "8080:80"
+    restart: always
+    depends_on:
+      - mssql-server
+volumes:
+  sqlsystem:
+  sqldata:
+  sqllog:
+  sqlbackup:
