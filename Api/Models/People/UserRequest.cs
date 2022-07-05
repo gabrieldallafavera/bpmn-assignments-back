@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Api.Models.People
+﻿namespace Api.Models.People
 {
     public class UserRequest : BaseModel
     {

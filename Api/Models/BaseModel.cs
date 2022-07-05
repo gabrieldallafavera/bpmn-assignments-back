@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Api.Models
+﻿namespace Api.Models
 {
     public class BaseModel
     {

@@ -31,10 +31,6 @@ namespace Api.Helpers.Exceptions
                 if (exception.InnerException?.InnerException is SqlException sqlException)
                 {
                     switch(sqlException.Number){
-                        //case 2627:  // Unique constraint error
-                        //    break;
-                        //case 547:   // Constraint check violation
-                        //    break;
                         case 2601:  // Erro dado duplicado
                             response.StatusCode = (int)HttpStatusCode.BadRequest;
                             string duplicado = sqlException.Message.Split("(")[1].Split(")")[0];

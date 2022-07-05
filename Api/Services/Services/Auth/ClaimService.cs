@@ -1,6 +1,5 @@
 ﻿using Api.Services.Interface.Auth;
 using System.Security.Claims;
-using System.Text.Json;
 
 namespace Api.Services.Services.Auth
 {

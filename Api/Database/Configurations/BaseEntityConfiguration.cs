@@ -1,5 +1,4 @@
 ﻿using Api.Database.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Api.Database.Configurations
 {

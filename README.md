@@ -1,3 +1,9 @@
+# Informações úteis
+
+Usado para criar falsos smtp
+
+> https://ethereal.email
+
 # Executar o projeto como docker
 
 <br>

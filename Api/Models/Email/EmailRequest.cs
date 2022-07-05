@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Api.Models.Email
+﻿namespace Api.Models.Email
 {
     public class EmailRequest
     {

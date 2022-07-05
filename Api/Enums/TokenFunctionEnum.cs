@@ -2,7 +2,6 @@
 {
     public enum TokenFunctionEnum : int
     {
-        //[StringValue("Exemplo")]
         VerifyEmail = 1,
 
         RefreshToken = 2,

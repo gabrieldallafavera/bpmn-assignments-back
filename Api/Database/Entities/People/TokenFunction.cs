@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Api.Database.Entities.People
+﻿namespace Api.Database.Entities.People
 {
     [Table("TokenFunction", Schema = "People")]
     public class TokenFunction : BaseEntity

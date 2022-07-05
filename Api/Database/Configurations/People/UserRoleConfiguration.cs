@@ -1,5 +1,4 @@
 ﻿using Api.Database.Entities.People;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Api.Database.Configurations.People
 {

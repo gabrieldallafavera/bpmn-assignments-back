@@ -1,5 +1,8 @@
-global using Microsoft.EntityFrameworkCore;
 global using Api.Database;
+global using Microsoft.EntityFrameworkCore;
+global using System.ComponentModel.DataAnnotations;
+global using System.ComponentModel.DataAnnotations.Schema;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Api.Scopes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
