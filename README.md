@@ -1,6 +1,8 @@
 # Executar o projeto como docker
 
-## Configuração e execução do projeto Docker
+<br>
+
+## ConfiguraÃ§Ã£o e execuÃ§Ã£o do projeto Docker
 
 ### Executar o comando para criar a build do projeto (imagem no docker)
 
@@ -24,7 +26,11 @@ $ docker run --rm -d -p 8080:80 --name myapp example-dev/bpmn-assignments
 
 -e (Environments)
 
-## Execução do projeto e MSSQL com docker composer
+<br>
+<hr>
+<br>
+
+## ExecuÃ§Ã£o do projeto e MSSQL com docker composer
 
 ### Executar docker composer
 
@@ -32,7 +38,7 @@ $ docker run --rm -d -p 8080:80 --name myapp example-dev/bpmn-assignments
 $ docker composer up -d
 ```
 
-### Para execução do docker composer
+### Para execuÃ§Ã£o do docker composer
 
 ```bash
 $ docker composer down

@@ -13,22 +13,16 @@ using Api.Helpers.StatusCodes;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 var server = builder.Configuration["DbServer"];
-var port = builder.Configuration["DbPort"];
 var user = builder.Configuration["DbUser"];
 var password = builder.Configuration["Password"];
 var database = builder.Configuration["Database"];
 
-string connectionString = string.Empty;
-if (!string.IsNullOrEmpty(server) && !string.IsNullOrEmpty(port) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(database))
+string connectionString = builder.Configuration.GetConnectionString("Connection");
+
+if (!string.IsNullOrEmpty(server) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(database))
 {
-    connectionString = $"Server={server},{port}; Initial Catalog={database}; User ID={user}; Password={password}; Persist Security Info=True;";
-}
-else
-{
-    connectionString = builder.Configuration.GetConnectionString("Connection");
+    connectionString = $"Server={server}; Initial Catalog={database}; User ID={user}; Password={password}; Persist Security Info=True;";
 }
 
 builder.Services.AddDbContext<Context>(options => options.UseSqlServer(connectionString));
@@ -47,7 +41,6 @@ builder.Logging.AddSerilog(logger);
 
 builder.Services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
@@ -96,17 +89,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    //app.UseSwagger();
-    //app.UseSwaggerUI(c =>
-    //{
-    //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api.BpmnAssignments");
-    //});
-}
-
 app.UseSwagger();
+
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api.BpmnAssignments");
